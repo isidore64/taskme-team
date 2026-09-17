@@ -428,7 +428,7 @@
 
     // Initialize Supabase
     const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // State
     let currentUser = null;
@@ -445,7 +445,7 @@
       if (!email) return;
 
       try {
-        const { error } = await supabase.auth.signInWithOtp({ email: email.toLowerCase(), options: { emailRedirectTo: window.location.origin + window.location.pathname } });
+        const { error } = await sb.auth.signInWithOtp({ email: email.toLowerCase(), options: { emailRedirectTo: window.location.origin + window.location.pathname } });
         if (error) throw error;
         showAuthMessage('Check your email for the sign-in link!', 'success');
       } catch (err) {
@@ -454,7 +454,7 @@
     });
 
     document.getElementById('sign-out-btn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
+      await sb.auth.signOut();
       location.reload();
     });
 
@@ -466,12 +466,12 @@
 
     // Check auth state
     async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await sb.auth.getSession();
 
       if (session) {
         currentUser = session.user;
         // Get user's person record
-        const { data } = await supabase
+        const { data } = await sb
           .from('people')
           .select('*')
           .eq('auth_id', session.user.id)
@@ -502,7 +502,7 @@
     }
 
     async function loadPeople() {
-      const { data } = await supabase
+      const { data } = await sb
         .from('people')
         .select('*')
         .eq('active', true);
@@ -510,7 +510,7 @@
     }
 
     async function loadTasks() {
-      const { data } = await supabase
+      const { data } = await sb
         .from('tasks')
         .select(`
           id, title, due_at, status, created_by, created_at, updated_at,
@@ -561,7 +561,7 @@
 
       try {
         const cleanTitle = title.replace(/@\w+/g, '').replace(/\s+/g, ' ').trim() || title;
-        const { data: task, error: insertError } = await supabase
+        const { data: task, error: insertError } = await sb
           .from('tasks')
           .insert({ title: cleanTitle, created_by: me.id, status: 'open' })
           .select()
@@ -580,7 +580,7 @@
             .map(p => ({ task_id: task.id, person_id: p.id }));
 
           if (assignees.length > 0) {
-            const { error: assignError } = await supabase.from('task_assignees').insert(assignees);
+            const { error: assignError } = await sb.from('task_assignees').insert(assignees);
             if (assignError) showError('Task added, but members can only assign themselves. Managers and owners can assign anyone.');
           }
         }
@@ -644,13 +644,13 @@
     async function tickTask(taskId) {
       const task = tasks.find(t => t.id === taskId);
       const newStatus = task.status === 'open' ? 'done' : 'open';
-      const { data: upd, error: tickError } = await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId).select();
+      const { data: upd, error: tickError } = await sb.from('tasks').update({ status: newStatus }).eq('id', taskId).select();
       if (tickError || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
       await loadTasks();
     }
 
     function subscribeToUpdates() {
-      supabase
+      sb
         .channel('tasks')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
           loadTasks();
@@ -676,7 +676,7 @@
 
     async function setDue(taskId, value) {
       const due_at = value ? new Date(value + 'T12:00:00').toISOString() : null;
-      const { data: upd, error } = await supabase.from('tasks').update({ due_at }).eq('id', taskId).select();
+      const { data: upd, error } = await sb.from('tasks').update({ due_at }).eq('id', taskId).select();
       if (error || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
       await loadTasks();
     }
@@ -701,7 +701,7 @@
     }
 
     // Sync auth state
-    supabase.auth.onAuthStateChange(() => checkAuth());
+    sb.auth.onAuthStateChange(() => checkAuth());
     checkAuth();
   </script>
 </body>
