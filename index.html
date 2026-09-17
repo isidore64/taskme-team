@@ -329,6 +329,16 @@
       font-weight: 500;
     }
 
+    .task-date {
+      font-family: var(--font);
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 4px;
+      color: var(--text-light);
+      background: white;
+    }
+
     /* Empty State */
     .empty-state {
       display: flex;
@@ -422,6 +432,8 @@
 
     // State
     let currentUser = null;
+    let me = null;
+    let appLoaded = false;
     let tasks = [];
     let people = [];
     let filterScope = 'all';
@@ -433,7 +445,7 @@
       if (!email) return;
 
       try {
-        const { error } = await supabase.auth.signInWithOtp({ email });
+        const { error } = await supabase.auth.signInWithOtp({ email: email.toLowerCase(), options: { emailRedirectTo: window.location.origin + window.location.pathname } });
         if (error) throw error;
         showAuthMessage('Check your email for the sign-in link!', 'success');
       } catch (err) {
@@ -443,7 +455,7 @@
 
     document.getElementById('sign-out-btn').addEventListener('click', async () => {
       await supabase.auth.signOut();
-      checkAuth();
+      location.reload();
     });
 
     function showAuthMessage(msg, type) {
@@ -466,10 +478,13 @@
           .single();
 
         if (data) {
+          me = data;
           document.getElementById('auth-screen').style.display = 'none';
           document.getElementById('app-screen').classList.add('active');
-          document.getElementById('user-info').textContent = data.name_en || data.name;
-          loadApp(data.id);
+          document.getElementById('user-info').textContent = (data.name_en || data.name) + ' · ' + data.role;
+          if (!appLoaded) { appLoaded = true; loadApp(data.id); }
+        } else {
+          showAuthMessage('Signed in, but this email is not on the active team list. Ask an owner.', 'error');
         }
       } else {
         document.getElementById('auth-screen').style.display = 'flex';
@@ -500,7 +515,8 @@
         .select(`
           id, title, due_at, status, created_by, created_at, updated_at,
           task_assignees (person_id)
-        `);
+        `)
+        .order('created_at', { ascending: false });
 
       tasks = (data || []).map(t => ({
         ...t,
@@ -544,11 +560,13 @@
       if (!title) return;
 
       try {
-        const { data: task } = await supabase
+        const cleanTitle = title.replace(/@\w+/g, '').replace(/\s+/g, ' ').trim() || title;
+        const { data: task, error: insertError } = await supabase
           .from('tasks')
-          .insert({ title, created_by: currentUser.id, status: 'open' })
+          .insert({ title: cleanTitle, created_by: me.id, status: 'open' })
           .select()
           .single();
+        if (insertError) throw insertError;
 
         // Parse @mentions
         const mentions = title.match(/@(\w+)/g);
@@ -562,14 +580,15 @@
             .map(p => ({ task_id: task.id, person_id: p.id }));
 
           if (assignees.length > 0) {
-            await supabase.from('task_assignees').insert(assignees);
+            const { error: assignError } = await supabase.from('task_assignees').insert(assignees);
+            if (assignError) showError('Task added, but members can only assign themselves. Managers and owners can assign anyone.');
           }
         }
 
         document.getElementById('new-task-input').value = '';
         await loadTasks();
       } catch (err) {
-        console.error('Failed to add task:', err);
+        showError('Could not add task: ' + err.message);
       }
     }
 
@@ -583,21 +602,23 @@
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const endOfWeek = new Date(today);
-        endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+        endOfWeek.setDate(today.getDate() + ((8 - today.getDay()) % 7 || 7));
+        const endOfToday = new Date(today);
+        endOfToday.setDate(today.getDate() + 1);
+        const limit = filterScope === 'today' ? endOfToday : endOfWeek;
 
         filtered = filtered.filter(t => {
           if (!t.due_at) return false;
           const dueDate = new Date(t.due_at);
-          return filterScope === 'today'
-            ? dueDate <= today || t.status === 'open'
-            : dueDate <= endOfWeek || t.status === 'open';
+          if (dueDate < today) return t.status === 'open'; // overdue
+          return dueDate < limit;
         });
       }
 
       // View filter
       if (filterView === 'mine') {
         filtered = filtered.filter(t =>
-          t.assignees.some(a => a.auth_id === currentUser.id)
+          t.assignees.some(a => a.id === me.id)
         );
       }
 
@@ -613,7 +634,7 @@
             <p class="task-title">${escapeHtml(t.title)}</p>
             <div class="task-meta">
               ${t.assignees.map(a => `<span class="assignee-tag">@${a.handle}</span>`).join('')}
-              ${t.due_at ? `<span class="task-due">${new Date(t.due_at).toLocaleDateString()}</span>` : ''}
+              <input type="date" class="task-date" title="Deadline" value="${t.due_at ? new Date(t.due_at).toLocaleDateString('en-CA') : ''}" onchange="setDue('${t.id}', this.value)">
             </div>
           </div>
         </li>
@@ -623,7 +644,8 @@
     async function tickTask(taskId) {
       const task = tasks.find(t => t.id === taskId);
       const newStatus = task.status === 'open' ? 'done' : 'open';
-      await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
+      const { data: upd, error: tickError } = await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId).select();
+      if (tickError || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
       await loadTasks();
     }
 
@@ -651,6 +673,27 @@
 
     window.addEventListener('online', updateOfflineLabel);
     window.addEventListener('offline', updateOfflineLabel);
+
+    async function setDue(taskId, value) {
+      const due_at = value ? new Date(value + 'T12:00:00').toISOString() : null;
+      const { data: upd, error } = await supabase.from('tasks').update({ due_at }).eq('id', taskId).select();
+      if (error || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
+      await loadTasks();
+    }
+
+    function showError(msg) {
+      let el = document.getElementById('toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;max-width:90vw;z-index:9999';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
 
     function escapeHtml(text) {
       const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
