@@ -1,180 +1,514 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Taskme</title>
-    <link rel="stylesheet" href="/src/styles.css" />
-    <link rel="stylesheet" href="/src/skins/skins.css" />
-  </head>
-  <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
-    <div id="drawer" class="drawer glass">
-      <!-- The handle: click = open/close, drag up/down = move along the edge -->
-      <div id="tab" class="tab" role="button" aria-label="Open or close Taskme">
-        <nav class="tabs" role="tablist">
-          <button data-view="tasks" role="tab" aria-label="Tasks">
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2.5" width="4" height="4" rx="1.2" /><path d="M3 4.6l.8.8 1.4-1.6M8.5 4.5H14" />
-              <rect x="2" y="9.5" width="4" height="4" rx="1.2" /><path d="M8.5 11.5H14" />
-            </svg>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Taskme Team</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@250..700&display=swap">
+  <style>
+    /* ============================================================
+       Page shell: ambient background the card floats on
+       ============================================================ */
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background:
+        radial-gradient(55% 60% at 15% 12%, #3f7a63 0%, transparent 62%),
+        radial-gradient(50% 55% at 88% 82%, #2c4b6c 0%, transparent 62%),
+        radial-gradient(42% 46% at 72% 6%, #a86a36 0%, transparent 55%),
+        #141a17;
+      font-family: "Noto Sans Georgian", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    }
+
+    /* ============================================================
+       Taskme Glass tokens + components (ported from src/styles.css)
+       ============================================================ */
+    .tm {
+      --ease: cubic-bezier(0.2, 0.9, 0.25, 1);
+      --text: #fff; --text-2: rgba(255,255,255,.72); --text-3: rgba(255,255,255,.5); --text-4: rgba(255,255,255,.22); --text-hi: #fff;
+      --accent: #34c759; --accent-line: rgba(52,199,89,.9); --accent-ring: 0 0 0 3px rgba(52,199,89,.28);
+      --accent-shine: inset 0 1px 0 rgba(255,255,255,.35); --on-accent: #fff;
+      --red: #ff5a5f; --yellow: #f5c542; --green: #3ccf82; --grey: rgba(255,255,255,.45);
+      --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.1); --row-line: rgba(255,255,255,.08);
+      --hover: rgba(255,255,255,.08); --hover-row: rgba(255,255,255,.06); --hover-strong: rgba(255,255,255,.12); --hover-small: rgba(255,255,255,.14);
+      --sel-bg: rgba(255,255,255,.2); --sel-shine: inset 0 1px 0 rgba(255,255,255,.18);
+      --check-border: rgba(255,255,255,.6); --check-bg: rgba(255,255,255,.06); --check-shine: inset 0 1px 0 rgba(255,255,255,.4);
+      --field-bg: rgba(255,255,255,.07); --field-border: rgba(255,255,255,.34);
+      --btn-bg: rgba(255,255,255,.12); --btn-bg-hover: rgba(255,255,255,.2); --btn-border: rgba(255,255,255,.08);
+      --chip-btn-bg: rgba(255,255,255,.08); --chip-btn-border: rgba(255,255,255,.14); --chip-btn-hover: rgba(255,255,255,.16);
+      --seg-bg: rgba(0,0,0,.22); --seg-on-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 1px 3px rgba(0,0,0,.25);
+      --toast-bg: rgba(20,24,22,.94); --toast-border: rgba(255,255,255,.18);
+      --danger: #ff8a8d; --danger-bg: rgba(255,90,95,.55); --warn: #ffcf6b;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      font-size: 13.5px;
+      color-scheme: dark;
+    }
+    :where(.tm) * { box-sizing: border-box; }
+    :where(.tm) button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+    :where(.tm) button:focus { outline: none; }
+    :where(.tm) button:focus-visible { outline: 1.5px solid rgba(255,255,255,.55); outline-offset: 1px; }
+    :where(.tm) input { font: inherit; }
+
+    .glass {
+      position: relative;
+      background: linear-gradient(155deg, rgba(255,255,255,.3) 0%, rgba(255,255,255,.08) 36%, rgba(255,255,255,.02) 62%, rgba(255,255,255,.1) 100%), rgba(26,32,29,.5);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.3), inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 28px rgba(255,255,255,.05), 0 20px 60px rgba(0,0,0,.35);
+      text-shadow: 0 1px 2px rgba(0,0,0,.25);
+      -webkit-backdrop-filter: blur(26px) saturate(1.5);
+      backdrop-filter: blur(26px) saturate(1.5);
+    }
+    .glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(120% 60% at 20% 0%, rgba(255,255,255,.14), transparent 60%); pointer-events: none; }
+
+    .tm.web {
+      width: 430px; max-width: 100%;
+      height: 780px; max-height: calc(100vh - 40px);
+      display: flex; flex-direction: column;
+      border-radius: 26px;
+      overflow: hidden;
+    }
+    @media (max-width: 480px) {
+      body { padding: 0; }
+      .tm.web { width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; }
+    }
+
+    .head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 16px 14px 8px 18px; }
+    .head h1 { margin: 0; min-width: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .head-btns { display: flex; align-items: center; gap: 8px; }
+    .off-chip { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 10px; font-size: 11px; font-weight: 600; color: #ffd9b0; background: rgba(217,130,43,.28); border: 1px solid rgba(240,160,80,.6); text-shadow: none; }
+    .acct { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .av { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; background: var(--accent); text-shadow: none; }
+    .acct-text { display: flex; flex-direction: column; min-width: 0; }
+    .acct-text b { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+    .acct-text span { font-size: 10.5px; color: var(--text-3); }
+    .signout-btn { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--text-2); transition: background-color 150ms, color 150ms; }
+    .signout-btn:hover { color: var(--text); background: var(--hover-strong); }
+
+    .subnav { margin: 0 14px 6px 18px; display: flex; gap: 6px; }
+    .seg { display: inline-flex; min-width: 0; max-width: 100%; padding: 2px; border-radius: 9px; background: var(--seg-bg); border: 1px solid var(--line-2); }
+    .seg button { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 11px; border-radius: 7px; font-size: 12px; color: var(--text-2); transition: background-color 150ms, color 150ms; }
+    .seg button:hover:not(.on) { color: var(--text); }
+    .seg button.on { color: var(--text-hi); background: var(--sel-bg); box-shadow: var(--seg-on-shadow); }
+
+    .scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 12px 10px 18px; }
+    .scroll::-webkit-scrollbar { width: 6px; }
+    .scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 3px; }
+    .list { margin: 0; padding: 0; list-style: none; }
+    .empty { padding: 20px 0; font-size: 12.5px; color: var(--text-3); margin: 0; text-align: center; }
+
+    .task { position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 9px 4px 9px 2px; border-bottom: 1px solid var(--row-line); font-size: 13.5px; line-height: 1.4; border-radius: 8px; }
+    .task:last-child { border-bottom: 0; }
+    .task:hover { background: var(--hover-row); }
+    .check { flex-shrink: 0; width: 19px; height: 19px; margin-top: 1px; display: grid; place-items: center; border-radius: 6px; border: 1.5px solid var(--check-border); background: var(--check-bg); color: transparent; transition: background-color 150ms, border-color 150ms, transform 150ms; }
+    .check:hover { border-color: #fff; }
+    .check:active { transform: scale(.88); }
+    .task.done .check { border-color: transparent; background: var(--accent); color: #fff; box-shadow: var(--check-shine); }
+    .check svg { width: 11px; height: 11px; }
+    .body { flex: 1; min-width: 0; }
+    .text { overflow-wrap: anywhere; }
+    .task.done .text { color: var(--text-3); text-decoration: line-through; text-decoration-thickness: 1.4px; }
+    .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 4px; }
+    .who { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 9px; background: var(--chip-btn-bg); border: 1px solid var(--chip-btn-border); color: var(--text-2); font-size: 10.5px; }
+    .who.me { color: #fff; background: rgba(52,199,89,.28); border-color: rgba(52,199,89,.6); }
+    .due-chip { --tone: var(--grey); flex-shrink: 0; margin-top: 1px; display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 4px; border-radius: 10px; font-size: 11px; color: var(--text-2); background: color-mix(in srgb, var(--tone) 20%, transparent); border: 1px solid color-mix(in srgb, var(--tone) 50%, transparent); }
+    .due-chip[data-tone="red"] { --tone: var(--red); color: var(--text); }
+    .due-chip[data-tone="yellow"] { --tone: var(--yellow); color: var(--text); }
+    .due-chip[data-tone="green"] { --tone: var(--green); color: var(--text); }
+    .due-chip input[type="date"] {
+      appearance: none; -webkit-appearance: none;
+      width: 90px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 11px; padding: 0; outline: none; color-scheme: dark;
+    }
+
+    .foot { position: relative; padding: 8px 14px 14px 18px; }
+    .field { width: 100%; height: 38px; padding: 0 42px 0 13px; border-radius: 12px; border: 1px solid var(--field-border); background: var(--field-bg); color: var(--text); font-size: 13px; outline: none; transition: border-color 150ms, box-shadow 150ms; }
+    .field::placeholder { color: var(--text-3); }
+    .field:focus { border-color: var(--accent-line); box-shadow: var(--accent-ring); }
+    .send { position: absolute; top: 15px; right: 21px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 9px; color: #fff; background: var(--accent); box-shadow: var(--accent-shine); }
+    .send:hover { filter: brightness(1.08); }
+    .send:active { transform: scale(.9); }
+    .send svg { width: 13px; height: 13px; }
+
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 12px; font-size: 12.5px; color: #fff; background: var(--toast-bg); border: 1px solid var(--toast-border); box-shadow: 0 10px 26px rgba(0,0,0,.4); max-width: 90vw; z-index: 99; display: none; }
+    .toast.err { border-color: rgba(255,207,107,.55); color: var(--warn); }
+
+    /* login */
+    .login { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 24px 26px 34px; }
+    .login .mark { width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; background: var(--accent); box-shadow: var(--accent-shine), 0 8px 22px rgba(52,199,89,.35); }
+    .login .mark svg { width: 22px; height: 22px; color: #fff; }
+    .login h2 { margin: 4px 0 0; font-size: 23px; font-weight: 650; letter-spacing: -.02em; }
+    .login p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--text-2); }
+    .login .field { padding-right: 13px; }
+    .login .err { color: var(--warn); font-size: 12px; line-height: 1.45; }
+    .login .ok { color: #b8f5c9; font-size: 12.5px; line-height: 1.5; }
+    .btn-accent { padding: 4px 16px; border-radius: 9px; font-size: 12px; font-weight: 600; color: #fff; background: var(--accent); box-shadow: var(--accent-shine); white-space: nowrap; }
+    .btn-accent:hover { filter: brightness(1.08); }
+    .btn-accent.wide { width: 100%; height: 38px; border-radius: 12px; font-size: 13.5px; }
+  </style>
+</head>
+<body>
+
+  <div class="tm web glass" id="card">
+    <!-- Auth Screen -->
+    <div id="auth-screen">
+      <div class="login">
+        <div class="mark">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="4.5" height="4.5" rx="1.3"/><path d="M3 4.7l.9.9 1.6-1.8M9.5 4.7H14"/><rect x="2" y="9" width="4.5" height="4.5" rx="1.3"/><path d="M9.5 11.2H14"/></svg>
+        </div>
+        <h2>Taskme Team</h2>
+        <p>Studio 64. Enter your team email and we'll send you a sign-in link. No password.</p>
+        <div id="auth-message"></div>
+        <input type="email" id="email-input" class="field" placeholder="you@64-studio.com" />
+        <button id="sign-in-btn" class="btn-accent wide">Email me a link</button>
+      </div>
+    </div>
+
+    <!-- App Screen -->
+    <div class="app-screen" id="app-screen" style="display:none; flex:1; min-height:0; flex-direction:column;">
+      <!-- Header -->
+      <div class="head">
+        <h1>Team</h1>
+        <div class="head-btns">
+          <span id="offline-badge"></span>
+          <div class="acct">
+            <span class="av" id="user-av"></span>
+            <span class="acct-text"><b id="user-name"></b><span id="user-role"></span></span>
+          </div>
+          <button class="signout-btn" id="sign-out-btn" title="Sign out" aria-label="Sign out">
+            <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5H3.5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1H6"/><path d="M10.5 11l3-3-3-3"/><path d="M13.3 8H6"/></svg>
           </button>
-          <button data-view="notes" role="tab" aria-label="Notes">
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 2h6l3 3v9h-9z" /><path d="M9.5 2v3h3M5.5 8h5M5.5 10.5h5M5.5 13h3" />
-            </svg>
-          </button>
-          <button id="full-btn" class="full-btn" aria-pressed="false" aria-label="Full height">
-            <svg class="i-grow" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 1.75h9M3.5 14.25h9M8 4v8M5.75 6.25 8 4l2.25 2.25M5.75 9.75 8 12l2.25-2.25" />
-            </svg>
-            <svg class="i-shrink" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 8h9M8 1.5v4M8 14.5v-4M5.75 3.25 8 5.5l2.25-2.25M5.75 12.75 8 10.5l2.25 2.25" />
-            </svg>
-          </button>
-        </nav>
-        <span class="grip"></span>
+        </div>
       </div>
 
-      <section id="panel" class="panel">
-        <!-- Resize grips (inner side, top, bottom, and the two inner corners) -->
-        <div class="rz rz-side" data-rz="side"></div>
-        <div class="rz rz-top" data-rz="top"></div>
-        <div class="rz rz-bottom" data-rz="bottom"></div>
-        <div class="rz rz-corner rz-corner-top" data-rz="top side"></div>
-        <div class="rz rz-corner rz-corner-bottom" data-rz="bottom side"></div>
+      <!-- Filters -->
+      <div class="subnav">
+        <span class="seg sm" id="scope-seg">
+          <button class="active" data-scope="all">All</button>
+          <button data-scope="today">Today</button>
+          <button data-scope="this-week">This week</button>
+        </span>
+        <span class="seg sm" id="view-seg">
+          <button class="active" data-view="everyone">Everyone</button>
+          <button data-view="mine">Mine</button>
+        </span>
+      </div>
 
-        <header class="head">
-          <h1>Taskme <span id="today" class="today"></span></h1>
-          <button id="gear" class="icon-btn" aria-label="Settings">
-            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-              <path d="M10.08 4.85 L10.42 2.53 L13.58 2.53 L13.92 4.85 L15.70 5.59 L17.57 4.18 L19.82 6.43 L18.41 8.30 L19.15 10.08 L21.47 10.42 L21.47 13.58 L19.15 13.92 L18.41 15.70 L19.82 17.57 L17.57 19.82 L15.70 18.41 L13.92 19.15 L13.58 21.47 L10.42 21.47 L10.08 19.15 L8.30 18.41 L6.43 19.82 L4.18 17.57 L5.59 15.70 L4.85 13.92 L2.53 13.58 L2.53 10.42 L4.85 10.08 L5.59 8.30 L4.18 6.43 L6.43 4.18 L8.30 5.59Z" />
-              <circle cx="12" cy="12" r="3.3" />
-            </svg>
-          </button>
-        </header>
+      <!-- Task List -->
+      <div class="scroll"><ul class="list" id="task-list"></ul></div>
 
-        <ul id="list" class="list"></ul>
-
-        <div id="notes-view" class="notes-view">
-          <ul id="note-list" class="list"></ul>
-          <div id="note-editor" class="editor">
-            <div class="ed-bar">
-              <button id="note-back" class="back">
-                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5" /></svg>
-                Notes
-              </button>
-              <span id="note-stamp" class="stamp"></span>
-            </div>
-            <textarea id="note-text" class="note-text" spellcheck="false" placeholder="Write something…"></textarea>
-          </div>
-        </div>
-
-        <div id="settings" class="settings" hidden>
-          <div class="row skin-row">
-            <span class="label">Skin</span>
-            <div id="skin-grid" class="skins" role="radiogroup" aria-label="Skin">
-              <button data-skin-id="glass" role="radio" aria-checked="false"><i class="sw sw-glass"></i><span>Glass</span></button>
-              <button data-skin-id="win95" role="radio" aria-checked="false"><i class="sw sw-win95"></i><span>Win 95</span></button>
-              <button data-skin-id="xp" role="radio" aria-checked="false"><i class="sw sw-xp"></i><span>XP</span></button>
-              <button data-skin-id="cyber" role="radio" aria-checked="false"><i class="sw sw-cyber"></i><span>Cyber</span></button>
-              <button data-skin-id="matrix" role="radio" aria-checked="false"><i class="sw sw-matrix"></i><span>Matrix</span></button>
-              <button data-skin-id="medieval" role="radio" aria-checked="false"><i class="sw sw-medieval"></i><span>Medieval</span></button>
-            </div>
-          </div>
-          <div class="row">
-            <span class="label">Edge</span>
-            <div id="edge-seg" class="seg" role="group" data-setting="edge">
-              <button data-v="left">Left</button>
-              <button data-v="right">Right</button>
-            </div>
-          </div>
-          <div id="screen-row" class="row" hidden>
-            <span class="label">Screen</span>
-            <div id="screen-seg" class="seg" role="group"></div>
-          </div>
-          <div class="row">
-            <span class="label">Start with Windows</span>
-            <button id="startup-switch" class="switch" role="switch" aria-checked="false" aria-label="Start with Windows">
-              <span class="knob"></span>
-            </button>
-          </div>
-          <div class="row">
-            <span class="label">Always on top</span>
-            <button id="top-switch" class="switch" role="switch" aria-checked="true" aria-label="Always on top">
-              <span class="knob"></span>
-            </button>
-          </div>
-          <div class="row glass-only">
-            <span class="label">Blur</span>
-            <button id="blur-switch" class="switch" role="switch" aria-checked="true" aria-label="Background blur">
-              <span class="knob"></span>
-            </button>
-          </div>
-          <div class="row glass-only">
-            <span class="label">Frost</span>
-            <input id="frost" class="slider" type="range" min="0" max="100" step="5" />
-            <span id="frost-val" class="val"></span>
-          </div>
-          <p id="blur-note" class="hint glass-only" hidden>Blur isn't available on this version of Windows.</p>
-          <button id="quit" class="btn-ghost">Quit Taskme</button>
-        </div>
-
-        <div id="toast" class="toast" role="status" hidden>
-          <span id="toast-text"></span>
-          <button id="undo">Undo</button>
-        </div>
-
-        <!-- Right-click popup -->
-        <div id="menu" class="menu" role="menu" hidden>
-          <button data-act="delete" role="menuitem">
-            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>
-            Delete
-          </button>
-        </div>
-
-        <!-- Date + time picker -->
-        <div id="picker" class="picker" role="dialog" aria-label="Deadline" hidden>
-          <div class="pk-head">
-            <span class="pk-title">Deadline</span>
-            <span class="pk-task"></span>
-          </div>
-          <div class="pk-body">
-          <div class="pk-quick">
-            <button data-q="today">Today</button>
-            <button data-q="tomorrow">Tomorrow</button>
-            <button data-q="week">In a week</button>
-          </div>
-          <div class="pk-month">
-            <button class="pk-prev" aria-label="Previous month">‹</button>
-            <span class="pk-label"></span>
-            <button class="pk-next" aria-label="Next month">›</button>
-          </div>
-          <div class="pk-dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
-          <div class="pk-days"></div>
-          <div class="pk-time">
-            <span class="label">Time</span>
-            <input class="pk-h" inputmode="numeric" maxlength="2" aria-label="Hour" />
-            <b>:</b>
-            <input class="pk-m" inputmode="numeric" maxlength="2" aria-label="Minute" />
-          </div>
-          </div>
-          <div class="pk-actions">
-            <button class="pk-clear btn-text danger">Remove</button>
-            <span class="spacer"></span>
-            <button class="pk-cancel btn-text">Cancel</button>
-            <button class="pk-set btn-accent">Set</button>
-          </div>
-        </div>
-
-        <footer id="foot" class="foot">
-          <input id="new-task" class="field" placeholder="Add a task…" autocomplete="off" spellcheck="false" disabled />
-          <input id="new-note" class="field" placeholder="Add a note…" autocomplete="off" spellcheck="false" />
-          <button id="send" class="send" aria-label="Add" disabled>
-            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
-          </button>
-        </footer>
-      </section>
+      <!-- Composer -->
+      <div class="foot">
+        <input type="text" class="field" id="new-task-input" placeholder="Add task (type @name to assign)">
+        <button class="send" id="new-task-btn" aria-label="Add">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>
+        </button>
+      </div>
     </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    // Configuration
+    const SUPABASE_URL = 'https://svxhyhntphbjikvcnvzg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2eGh5aG50cGhiamlrdmNudnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MTg2MzYsImV4cCI6MjEwNTE5NDYzNn0.tuYigmUCF22QpNWiePSpK8HG59DLCsTLhYPLH8lDnjg';
+
+    // Initialize Supabase
+    const { createClient } = window.supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // State
+    let currentUser = null;
+    let me = null;
+    let appLoaded = false;
+    let tasks = [];
+    let people = [];
+    let filterScope = 'all';
+    let filterView = 'everyone';
+
+    // Auth
+    document.getElementById('sign-in-btn').addEventListener('click', async () => {
+      const email = document.getElementById('email-input').value.trim();
+      if (!email) return;
+
+      try {
+        const { error } = await sb.auth.signInWithOtp({ email: email.toLowerCase(), options: { emailRedirectTo: window.location.origin + window.location.pathname } });
+        if (error) throw error;
+        showAuthMessage('Check your email for the sign-in link!', 'ok');
+      } catch (err) {
+        showAuthMessage(err.message, 'err');
+      }
+    });
+
+    document.getElementById('sign-out-btn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      location.reload();
+    });
+
+    function showAuthMessage(msg, type) {
+      const el = document.getElementById('auth-message');
+      el.innerHTML = `<p class="${type}">${escapeHtml(msg)}</p>`;
+    }
+
+    // Check auth state
+    async function checkAuth() {
+      const { data: { session } } = await sb.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        // Get user's person record
+        const { data } = await sb
+          .from('people')
+          .select('*')
+          .eq('auth_id', session.user.id)
+          .single();
+
+        if (data) {
+          me = data;
+          document.getElementById('auth-screen').style.display = 'none';
+          document.getElementById('app-screen').style.display = 'flex';
+          const name = data.name_en || data.name;
+          document.getElementById('user-name').textContent = name;
+          document.getElementById('user-role').textContent = cap(data.role);
+          document.getElementById('user-av').textContent = initials(name);
+          if (!appLoaded) { appLoaded = true; loadApp(data.id); }
+        } else {
+          showAuthMessage('Signed in, but this email is not on the active team list. Ask an owner.', 'err');
+        }
+      } else {
+        document.getElementById('auth-screen').style.display = 'block';
+        document.getElementById('app-screen').style.display = 'none';
+      }
+    }
+
+    // Load app
+    async function loadApp(userId) {
+      await loadPeople();
+      await loadTasks();
+      setupEventListeners();
+      subscribeToUpdates();
+      updateOfflineLabel();
+    }
+
+    async function loadPeople() {
+      const { data } = await sb
+        .from('people')
+        .select('*')
+        .eq('active', true);
+      people = data || [];
+    }
+
+    async function loadTasks() {
+      const { data } = await sb
+        .from('tasks')
+        .select(`
+          id, title, due_at, status, created_by, created_at, updated_at,
+          task_assignees (person_id)
+        `)
+        .order('created_at', { ascending: false });
+
+      tasks = (data || []).map(t => ({
+        ...t,
+        assignees: t.task_assignees.map(ta =>
+          people.find(p => p.id === ta.person_id)
+        ).filter(Boolean)
+      }));
+
+      renderTasks();
+    }
+
+    function setupEventListeners() {
+      // Filters
+      document.querySelectorAll('#scope-seg [data-scope]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('#scope-seg .active').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          filterScope = e.target.dataset.scope;
+          renderTasks();
+        });
+      });
+
+      document.querySelectorAll('#view-seg [data-view]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('#view-seg .active').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          filterView = e.target.dataset.view;
+          renderTasks();
+        });
+      });
+
+      // New task
+      const input = document.getElementById('new-task-input');
+      document.getElementById('new-task-btn').addEventListener('click', () => addTask(input.value.trim()));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addTask(input.value.trim());
+      });
+    }
+
+    async function addTask(title) {
+      if (!title) return;
+
+      try {
+        const cleanTitle = title.replace(/@\w+/g, '').replace(/\s+/g, ' ').trim() || title;
+        const { data: task, error: insertError } = await sb
+          .from('tasks')
+          .insert({ title: cleanTitle, created_by: me.id, status: 'open' })
+          .select()
+          .single();
+        if (insertError) throw insertError;
+
+        // Parse @mentions
+        const mentions = title.match(/@(\w+)/g);
+        if (mentions) {
+          const assignees = mentions
+            .map(m => {
+              const handle = m.slice(1);
+              return people.find(p => p.handle === handle);
+            })
+            .filter(Boolean)
+            .map(p => ({ task_id: task.id, person_id: p.id }));
+
+          if (assignees.length > 0) {
+            const { error: assignError } = await sb.from('task_assignees').insert(assignees);
+            if (assignError) showToast('Task added, but members can only assign themselves. Managers and owners can assign anyone.', true);
+          }
+        }
+
+        document.getElementById('new-task-input').value = '';
+        await loadTasks();
+      } catch (err) {
+        showToast('Could not add task: ' + err.message, true);
+      }
+    }
+
+    // Taskme's own deadline colour rule: red < 24h, yellow < 72h, else green
+    function dueTone(due_at, done) {
+      if (done) return 'grey';
+      const left = new Date(due_at).getTime() - Date.now();
+      if (left < 24 * 36e5) return 'red';
+      if (left < 72 * 36e5) return 'yellow';
+      return 'green';
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('task-list');
+
+      let filtered = tasks;
+
+      // Scope filter
+      if (filterScope === 'today' || filterScope === 'this-week') {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + ((8 - today.getDay()) % 7 || 7));
+        const endOfToday = new Date(today);
+        endOfToday.setDate(today.getDate() + 1);
+        const limit = filterScope === 'today' ? endOfToday : endOfWeek;
+
+        filtered = filtered.filter(t => {
+          if (!t.due_at) return false;
+          const dueDate = new Date(t.due_at);
+          if (dueDate < today) return t.status === 'open'; // overdue
+          return dueDate < limit;
+        });
+      }
+
+      // View filter
+      if (filterView === 'mine') {
+        filtered = filtered.filter(t =>
+          t.assignees.some(a => a.id === me.id)
+        );
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<li class="empty">No tasks.</li>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => `
+        <li class="task ${t.status === 'done' ? 'done' : ''}">
+          <button class="check" onclick="tickTask('${t.id}')" aria-label="Done">
+            <svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="body">
+            <span class="text">${escapeHtml(t.title)}</span>
+            <div class="meta">
+              ${t.assignees.map(a => `<span class="who ${a.id === me.id ? 'me' : ''}">@${escapeHtml(a.handle)}</span>`).join('')}
+              <span class="due-chip" data-tone="${t.due_at ? dueTone(t.due_at, t.status === 'done') : 'grey'}">
+                <input type="date" title="Deadline" value="${t.due_at ? new Date(t.due_at).toLocaleDateString('en-CA') : ''}" onchange="setDue('${t.id}', this.value)">
+              </span>
+            </div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    async function tickTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      const newStatus = task.status === 'open' ? 'done' : 'open';
+      const { data: upd, error: tickError } = await sb.from('tasks').update({ status: newStatus }).eq('id', taskId).select();
+      if (tickError || !upd || upd.length === 0) showToast('Only the creator, an assignee, or a manager can change this task.', true);
+      await loadTasks();
+    }
+
+    function subscribeToUpdates() {
+      sb
+        .channel('tasks')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+          loadTasks();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'task_assignees' }, () => {
+          loadTasks();
+        })
+        .subscribe();
+    }
+
+    function updateOfflineLabel() {
+      const badge = document.getElementById('offline-badge');
+      const isOnline = navigator.onLine;
+      badge.innerHTML = isOnline ? '' : '<span class="off-chip">Offline</span>';
+    }
+
+    window.addEventListener('online', updateOfflineLabel);
+    window.addEventListener('offline', updateOfflineLabel);
+
+    async function setDue(taskId, value) {
+      const due_at = value ? new Date(value + 'T12:00:00').toISOString() : null;
+      const { data: upd, error } = await sb.from('tasks').update({ due_at }).eq('id', taskId).select();
+      if (error || !upd || upd.length === 0) showToast('Only the creator, an assignee, or a manager can change this task.', true);
+      await loadTasks();
+    }
+
+    function showToast(msg, isErr) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'toast' + (isErr ? ' err' : '');
+      el.style.display = 'flex';
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+    function initials(name) {
+      return (name || '').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Sync auth state
+    sb.auth.onAuthStateChange(() => checkAuth());
+    checkAuth();
+  </script>
+</body>
 </html>
