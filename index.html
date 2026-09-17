@@ -1,708 +1,180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taskme Team</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root {
-      --primary: #0066cc;
-      --text: #1a1a1a;
-      --text-light: #666;
-      --border: #ddd;
-      --bg-hover: #f5f5f5;
-      --bg-done: #f0f0f0;
-      --spacing: 8px;
-      --radius: 4px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      font-family: var(--font);
-      color: var(--text);
-      background: white;
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Auth Screen */
-    .auth-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      background: white;
-    }
-
-    .auth-form {
-      width: 100%;
-      max-width: 300px;
-    }
-
-    .auth-form h1 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .auth-form p {
-      text-align: center;
-      color: var(--text-light);
-      margin-bottom: 24px;
-      font-size: 14px;
-    }
-
-    .auth-form input {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 14px;
-      font-family: var(--font);
-    }
-
-    .auth-form button {
-      width: 100%;
-      padding: 10px 12px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .auth-form button:hover {
-      opacity: 0.9;
-    }
-
-    .auth-message {
-      text-align: center;
-      padding: 12px;
-      border-radius: var(--radius);
-      margin-bottom: 12px;
-      font-size: 13px;
-    }
-
-    .auth-message.success {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .auth-message.error {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    /* App Screen */
-    .app-screen {
-      display: none;
-      flex-direction: column;
-      height: 100vh;
-    }
-
-    .app-screen.active {
-      display: flex;
-    }
-
-    .team-board {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    /* Header */
-    .team-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      background: white;
-    }
-
-    .team-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .team-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .offline-badge {
-      background: #ff9800;
-      color: white;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .user-info {
-      font-size: 13px;
-      color: var(--text-light);
-    }
-
-    .sign-out-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 4px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text);
-    }
-
-    .sign-out-btn:hover {
-      background: var(--bg-hover);
-    }
-
-    /* Toolbar */
-    .team-toolbar {
-      display: flex;
-      gap: 8px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      background: white;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .filter-group {
-      display: flex;
-      gap: 4px;
-      border-right: 1px solid var(--border);
-      padding-right: 8px;
-    }
-
-    .filter-button {
-      background: transparent;
-      border: 1px solid var(--border);
-      padding: 4px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text);
-      transition: all 0.2s;
-    }
-
-    .filter-button:hover {
-      background: var(--bg-hover);
-    }
-
-    .filter-button.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .new-task-input {
-      flex: 1;
-      min-width: 200px;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 13px;
-      font-family: var(--font);
-    }
-
-    .new-task-input::placeholder {
-      color: var(--text-light);
-    }
-
-    .new-task-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 6px 16px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .new-task-btn:hover {
-      opacity: 0.9;
-    }
-
-    /* Task List */
-    .task-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0;
-      margin: 0;
-      list-style: none;
-    }
-
-    .task-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.2s;
-    }
-
-    .task-item:hover {
-      background: var(--bg-hover);
-    }
-
-    .task-item.done {
-      background: var(--bg-done);
-      opacity: 0.7;
-    }
-
-    .task-checkbox {
-      flex-shrink: 0;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
-
-    .task-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .task-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin: 0;
-      word-break: break-word;
-      text-decoration: none;
-    }
-
-    .task-item.done .task-title {
-      text-decoration: line-through;
-      color: var(--text-light);
-    }
-
-    .task-meta {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      color: var(--text-light);
-    }
-
-    .task-due {
-      padding: 2px 6px;
-      background: #ffeaa7;
-      border-radius: 3px;
-    }
-
-    .task-assignees {
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .assignee-tag {
-      background: #e3f2fd;
-      color: var(--primary);
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    .task-date {
-      font-family: var(--font);
-      font-size: 12px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      padding: 1px 4px;
-      color: var(--text-light);
-      background: white;
-    }
-
-    /* Empty State */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-light);
-    }
-
-    .empty-state p {
-      font-size: 14px;
-      margin: 0;
-    }
-
-    /* Mobile */
-    @media (max-width: 600px) {
-      .team-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .filter-group {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding-right: 0;
-        padding-bottom: 8px;
-      }
-
-      .task-item {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 12px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Auth Screen -->
-  <div class="auth-screen" id="auth-screen">
-    <div class="auth-form">
-      <h1>Taskme Team</h1>
-      <p>Sign in with your email</p>
-      <div id="auth-message"></div>
-      <input type="email" id="email-input" placeholder="your.email@example.com" />
-      <button id="sign-in-btn">Sign in with magic link</button>
-    </div>
-  </div>
-
-  <!-- App Screen -->
-  <div class="app-screen" id="app-screen">
-    <div class="team-board">
-      <!-- Header -->
-      <div class="team-header">
-        <h1 class="team-title">Team</h1>
-        <div class="team-actions">
-          <div id="offline-badge"></div>
-          <div class="user-info" id="user-info"></div>
-          <button class="sign-out-btn" id="sign-out-btn">Sign out</button>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taskme</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/src/skins/skins.css" />
+  </head>
+  <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
+    <div id="drawer" class="drawer glass">
+      <!-- The handle: click = open/close, drag up/down = move along the edge -->
+      <div id="tab" class="tab" role="button" aria-label="Open or close Taskme">
+        <nav class="tabs" role="tablist">
+          <button data-view="tasks" role="tab" aria-label="Tasks">
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2.5" width="4" height="4" rx="1.2" /><path d="M3 4.6l.8.8 1.4-1.6M8.5 4.5H14" />
+              <rect x="2" y="9.5" width="4" height="4" rx="1.2" /><path d="M8.5 11.5H14" />
+            </svg>
+          </button>
+          <button data-view="notes" role="tab" aria-label="Notes">
+            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 2h6l3 3v9h-9z" /><path d="M9.5 2v3h3M5.5 8h5M5.5 10.5h5M5.5 13h3" />
+            </svg>
+          </button>
+          <button id="full-btn" class="full-btn" aria-pressed="false" aria-label="Full height">
+            <svg class="i-grow" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 1.75h9M3.5 14.25h9M8 4v8M5.75 6.25 8 4l2.25 2.25M5.75 9.75 8 12l2.25-2.25" />
+            </svg>
+            <svg class="i-shrink" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 8h9M8 1.5v4M8 14.5v-4M5.75 3.25 8 5.5l2.25-2.25M5.75 12.75 8 10.5l2.25 2.25" />
+            </svg>
+          </button>
+        </nav>
+        <span class="grip"></span>
       </div>
 
-      <!-- Toolbar -->
-      <div class="team-toolbar">
-        <div class="filter-group">
-          <button class="filter-button active" data-scope="all">All</button>
-          <button class="filter-button" data-scope="today">Today</button>
-          <button class="filter-button" data-scope="this-week">This week</button>
+      <section id="panel" class="panel">
+        <!-- Resize grips (inner side, top, bottom, and the two inner corners) -->
+        <div class="rz rz-side" data-rz="side"></div>
+        <div class="rz rz-top" data-rz="top"></div>
+        <div class="rz rz-bottom" data-rz="bottom"></div>
+        <div class="rz rz-corner rz-corner-top" data-rz="top side"></div>
+        <div class="rz rz-corner rz-corner-bottom" data-rz="bottom side"></div>
+
+        <header class="head">
+          <h1>Taskme <span id="today" class="today"></span></h1>
+          <button id="gear" class="icon-btn" aria-label="Settings">
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+              <path d="M10.08 4.85 L10.42 2.53 L13.58 2.53 L13.92 4.85 L15.70 5.59 L17.57 4.18 L19.82 6.43 L18.41 8.30 L19.15 10.08 L21.47 10.42 L21.47 13.58 L19.15 13.92 L18.41 15.70 L19.82 17.57 L17.57 19.82 L15.70 18.41 L13.92 19.15 L13.58 21.47 L10.42 21.47 L10.08 19.15 L8.30 18.41 L6.43 19.82 L4.18 17.57 L5.59 15.70 L4.85 13.92 L2.53 13.58 L2.53 10.42 L4.85 10.08 L5.59 8.30 L4.18 6.43 L6.43 4.18 L8.30 5.59Z" />
+              <circle cx="12" cy="12" r="3.3" />
+            </svg>
+          </button>
+        </header>
+
+        <ul id="list" class="list"></ul>
+
+        <div id="notes-view" class="notes-view">
+          <ul id="note-list" class="list"></ul>
+          <div id="note-editor" class="editor">
+            <div class="ed-bar">
+              <button id="note-back" class="back">
+                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5" /></svg>
+                Notes
+              </button>
+              <span id="note-stamp" class="stamp"></span>
+            </div>
+            <textarea id="note-text" class="note-text" spellcheck="false" placeholder="Write something…"></textarea>
+          </div>
         </div>
-        <div class="filter-group">
-          <button class="filter-button active" data-view="everyone">Everyone</button>
-          <button class="filter-button" data-view="mine">Mine</button>
-        </div>
-        <input type="text" class="new-task-input" id="new-task-input" placeholder="Add task (type @name to assign)">
-        <button class="new-task-btn" id="new-task-btn">Add</button>
-      </div>
 
-      <!-- Task List -->
-      <ul class="task-list" id="task-list"></ul>
-    </div>
-  </div>
-
-  <script>
-    // Configuration
-    const SUPABASE_URL = 'https://svxhyhntphbjikvcnvzg.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2eGh5aG50cGhiamlrdmNudnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MTg2MzYsImV4cCI6MjEwNTE5NDYzNn0.tuYigmUCF22QpNWiePSpK8HG59DLCsTLhYPLH8lDnjg';
-
-    // Initialize Supabase
-    const { createClient } = window.supabase;
-    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // State
-    let currentUser = null;
-    let me = null;
-    let appLoaded = false;
-    let tasks = [];
-    let people = [];
-    let filterScope = 'all';
-    let filterView = 'everyone';
-
-    // Auth
-    document.getElementById('sign-in-btn').addEventListener('click', async () => {
-      const email = document.getElementById('email-input').value.trim();
-      if (!email) return;
-
-      try {
-        const { error } = await sb.auth.signInWithOtp({ email: email.toLowerCase(), options: { emailRedirectTo: window.location.origin + window.location.pathname } });
-        if (error) throw error;
-        showAuthMessage('Check your email for the sign-in link!', 'success');
-      } catch (err) {
-        showAuthMessage(err.message, 'error');
-      }
-    });
-
-    document.getElementById('sign-out-btn').addEventListener('click', async () => {
-      await sb.auth.signOut();
-      location.reload();
-    });
-
-    function showAuthMessage(msg, type) {
-      const el = document.getElementById('auth-message');
-      el.textContent = msg;
-      el.className = `auth-message ${type}`;
-    }
-
-    // Check auth state
-    async function checkAuth() {
-      const { data: { session } } = await sb.auth.getSession();
-
-      if (session) {
-        currentUser = session.user;
-        // Get user's person record
-        const { data } = await sb
-          .from('people')
-          .select('*')
-          .eq('auth_id', session.user.id)
-          .single();
-
-        if (data) {
-          me = data;
-          document.getElementById('auth-screen').style.display = 'none';
-          document.getElementById('app-screen').classList.add('active');
-          document.getElementById('user-info').textContent = (data.name_en || data.name) + ' · ' + data.role;
-          if (!appLoaded) { appLoaded = true; loadApp(data.id); }
-        } else {
-          showAuthMessage('Signed in, but this email is not on the active team list. Ask an owner.', 'error');
-        }
-      } else {
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app-screen').classList.remove('active');
-      }
-    }
-
-    // Load app
-    async function loadApp(userId) {
-      await loadPeople();
-      await loadTasks();
-      setupEventListeners();
-      subscribeToUpdates();
-      updateOfflineLabel();
-    }
-
-    async function loadPeople() {
-      const { data } = await sb
-        .from('people')
-        .select('*')
-        .eq('active', true);
-      people = data || [];
-    }
-
-    async function loadTasks() {
-      const { data } = await sb
-        .from('tasks')
-        .select(`
-          id, title, due_at, status, created_by, created_at, updated_at,
-          task_assignees (person_id)
-        `)
-        .order('created_at', { ascending: false });
-
-      tasks = (data || []).map(t => ({
-        ...t,
-        assignees: t.task_assignees.map(ta =>
-          people.find(p => p.id === ta.person_id)
-        ).filter(Boolean)
-      }));
-
-      renderTasks();
-    }
-
-    function setupEventListeners() {
-      // Filters
-      document.querySelectorAll('[data-scope]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('[data-scope].active').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          filterScope = e.target.dataset.scope;
-          renderTasks();
-        });
-      });
-
-      document.querySelectorAll('[data-view]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          document.querySelectorAll('[data-view].active').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          filterView = e.target.dataset.view;
-          renderTasks();
-        });
-      });
-
-      // New task
-      const input = document.getElementById('new-task-input');
-      document.getElementById('new-task-btn').addEventListener('click', () => addTask(input.value.trim()));
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') addTask(input.value.trim());
-      });
-    }
-
-    async function addTask(title) {
-      if (!title) return;
-
-      try {
-        const cleanTitle = title.replace(/@\w+/g, '').replace(/\s+/g, ' ').trim() || title;
-        const { data: task, error: insertError } = await sb
-          .from('tasks')
-          .insert({ title: cleanTitle, created_by: me.id, status: 'open' })
-          .select()
-          .single();
-        if (insertError) throw insertError;
-
-        // Parse @mentions
-        const mentions = title.match(/@(\w+)/g);
-        if (mentions) {
-          const assignees = mentions
-            .map(m => {
-              const handle = m.slice(1);
-              return people.find(p => p.handle === handle);
-            })
-            .filter(Boolean)
-            .map(p => ({ task_id: task.id, person_id: p.id }));
-
-          if (assignees.length > 0) {
-            const { error: assignError } = await sb.from('task_assignees').insert(assignees);
-            if (assignError) showError('Task added, but members can only assign themselves. Managers and owners can assign anyone.');
-          }
-        }
-
-        document.getElementById('new-task-input').value = '';
-        await loadTasks();
-      } catch (err) {
-        showError('Could not add task: ' + err.message);
-      }
-    }
-
-    function renderTasks() {
-      const list = document.getElementById('task-list');
-
-      let filtered = tasks;
-
-      // Scope filter
-      if (filterScope === 'today' || filterScope === 'this-week') {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const endOfWeek = new Date(today);
-        endOfWeek.setDate(today.getDate() + ((8 - today.getDay()) % 7 || 7));
-        const endOfToday = new Date(today);
-        endOfToday.setDate(today.getDate() + 1);
-        const limit = filterScope === 'today' ? endOfToday : endOfWeek;
-
-        filtered = filtered.filter(t => {
-          if (!t.due_at) return false;
-          const dueDate = new Date(t.due_at);
-          if (dueDate < today) return t.status === 'open'; // overdue
-          return dueDate < limit;
-        });
-      }
-
-      // View filter
-      if (filterView === 'mine') {
-        filtered = filtered.filter(t =>
-          t.assignees.some(a => a.id === me.id)
-        );
-      }
-
-      if (filtered.length === 0) {
-        list.innerHTML = '<div class="empty-state"><p>No tasks.</p></div>';
-        return;
-      }
-
-      list.innerHTML = filtered.map(t => `
-        <li class="task-item ${t.status === 'done' ? 'done' : ''}">
-          <input type="checkbox" class="task-checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="tickTask('${t.id}')">
-          <div class="task-content">
-            <p class="task-title">${escapeHtml(t.title)}</p>
-            <div class="task-meta">
-              ${t.assignees.map(a => `<span class="assignee-tag">@${a.handle}</span>`).join('')}
-              <input type="date" class="task-date" title="Deadline" value="${t.due_at ? new Date(t.due_at).toLocaleDateString('en-CA') : ''}" onchange="setDue('${t.id}', this.value)">
+        <div id="settings" class="settings" hidden>
+          <div class="row skin-row">
+            <span class="label">Skin</span>
+            <div id="skin-grid" class="skins" role="radiogroup" aria-label="Skin">
+              <button data-skin-id="glass" role="radio" aria-checked="false"><i class="sw sw-glass"></i><span>Glass</span></button>
+              <button data-skin-id="win95" role="radio" aria-checked="false"><i class="sw sw-win95"></i><span>Win 95</span></button>
+              <button data-skin-id="xp" role="radio" aria-checked="false"><i class="sw sw-xp"></i><span>XP</span></button>
+              <button data-skin-id="cyber" role="radio" aria-checked="false"><i class="sw sw-cyber"></i><span>Cyber</span></button>
+              <button data-skin-id="matrix" role="radio" aria-checked="false"><i class="sw sw-matrix"></i><span>Matrix</span></button>
+              <button data-skin-id="medieval" role="radio" aria-checked="false"><i class="sw sw-medieval"></i><span>Medieval</span></button>
             </div>
           </div>
-        </li>
-      `).join('');
-    }
+          <div class="row">
+            <span class="label">Edge</span>
+            <div id="edge-seg" class="seg" role="group" data-setting="edge">
+              <button data-v="left">Left</button>
+              <button data-v="right">Right</button>
+            </div>
+          </div>
+          <div id="screen-row" class="row" hidden>
+            <span class="label">Screen</span>
+            <div id="screen-seg" class="seg" role="group"></div>
+          </div>
+          <div class="row">
+            <span class="label">Start with Windows</span>
+            <button id="startup-switch" class="switch" role="switch" aria-checked="false" aria-label="Start with Windows">
+              <span class="knob"></span>
+            </button>
+          </div>
+          <div class="row">
+            <span class="label">Always on top</span>
+            <button id="top-switch" class="switch" role="switch" aria-checked="true" aria-label="Always on top">
+              <span class="knob"></span>
+            </button>
+          </div>
+          <div class="row glass-only">
+            <span class="label">Blur</span>
+            <button id="blur-switch" class="switch" role="switch" aria-checked="true" aria-label="Background blur">
+              <span class="knob"></span>
+            </button>
+          </div>
+          <div class="row glass-only">
+            <span class="label">Frost</span>
+            <input id="frost" class="slider" type="range" min="0" max="100" step="5" />
+            <span id="frost-val" class="val"></span>
+          </div>
+          <p id="blur-note" class="hint glass-only" hidden>Blur isn't available on this version of Windows.</p>
+          <button id="quit" class="btn-ghost">Quit Taskme</button>
+        </div>
 
-    async function tickTask(taskId) {
-      const task = tasks.find(t => t.id === taskId);
-      const newStatus = task.status === 'open' ? 'done' : 'open';
-      const { data: upd, error: tickError } = await sb.from('tasks').update({ status: newStatus }).eq('id', taskId).select();
-      if (tickError || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
-      await loadTasks();
-    }
+        <div id="toast" class="toast" role="status" hidden>
+          <span id="toast-text"></span>
+          <button id="undo">Undo</button>
+        </div>
 
-    function subscribeToUpdates() {
-      sb
-        .channel('tasks')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
-          loadTasks();
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'task_assignees' }, () => {
-          loadTasks();
-        })
-        .subscribe();
-    }
+        <!-- Right-click popup -->
+        <div id="menu" class="menu" role="menu" hidden>
+          <button data-act="delete" role="menuitem">
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"/></svg>
+            Delete
+          </button>
+        </div>
 
-    function updateOfflineLabel() {
-      const badge = document.getElementById('offline-badge');
-      const isOnline = navigator.onLine;
-      if (!isOnline) {
-        badge.innerHTML = '<div class="offline-badge">Offline</div>';
-      } else {
-        badge.innerHTML = '';
-      }
-    }
+        <!-- Date + time picker -->
+        <div id="picker" class="picker" role="dialog" aria-label="Deadline" hidden>
+          <div class="pk-head">
+            <span class="pk-title">Deadline</span>
+            <span class="pk-task"></span>
+          </div>
+          <div class="pk-body">
+          <div class="pk-quick">
+            <button data-q="today">Today</button>
+            <button data-q="tomorrow">Tomorrow</button>
+            <button data-q="week">In a week</button>
+          </div>
+          <div class="pk-month">
+            <button class="pk-prev" aria-label="Previous month">‹</button>
+            <span class="pk-label"></span>
+            <button class="pk-next" aria-label="Next month">›</button>
+          </div>
+          <div class="pk-dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+          <div class="pk-days"></div>
+          <div class="pk-time">
+            <span class="label">Time</span>
+            <input class="pk-h" inputmode="numeric" maxlength="2" aria-label="Hour" />
+            <b>:</b>
+            <input class="pk-m" inputmode="numeric" maxlength="2" aria-label="Minute" />
+          </div>
+          </div>
+          <div class="pk-actions">
+            <button class="pk-clear btn-text danger">Remove</button>
+            <span class="spacer"></span>
+            <button class="pk-cancel btn-text">Cancel</button>
+            <button class="pk-set btn-accent">Set</button>
+          </div>
+        </div>
 
-    window.addEventListener('online', updateOfflineLabel);
-    window.addEventListener('offline', updateOfflineLabel);
-
-    async function setDue(taskId, value) {
-      const due_at = value ? new Date(value + 'T12:00:00').toISOString() : null;
-      const { data: upd, error } = await sb.from('tasks').update({ due_at }).eq('id', taskId).select();
-      if (error || !upd || upd.length === 0) showError('Only the creator, an assignee, or a manager can change this task.');
-      await loadTasks();
-    }
-
-    function showError(msg) {
-      let el = document.getElementById('toast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'toast';
-        el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 16px;border-radius:6px;font-size:13px;max-width:90vw;z-index:9999';
-        document.body.appendChild(el);
-      }
-      el.textContent = msg;
-      el.style.display = 'block';
-      clearTimeout(el._t);
-      el._t = setTimeout(() => { el.style.display = 'none'; }, 4000);
-    }
-
-    function escapeHtml(text) {
-      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-      return text.replace(/[&<>"']/g, m => map[m]);
-    }
-
-    // Sync auth state
-    sb.auth.onAuthStateChange(() => checkAuth());
-    checkAuth();
-  </script>
-</body>
+        <footer id="foot" class="foot">
+          <input id="new-task" class="field" placeholder="Add a task…" autocomplete="off" spellcheck="false" disabled />
+          <input id="new-note" class="field" placeholder="Add a note…" autocomplete="off" spellcheck="false" />
+          <button id="send" class="send" aria-label="Add" disabled>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+          </button>
+        </footer>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
