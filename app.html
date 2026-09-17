@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taskme Team</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --primary: #0066cc;
+      --text: #1a1a1a;
+      --text-light: #666;
+      --border: #ddd;
+      --bg-hover: #f5f5f5;
+      --bg-done: #f0f0f0;
+      --spacing: 8px;
+      --radius: 4px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: var(--font);
+      color: var(--text);
+      background: white;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Auth Screen */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      background: white;
+    }
+
+    .auth-form {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .auth-form h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .auth-form p {
+      text-align: center;
+      color: var(--text-light);
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: var(--font);
+    }
+
+    .auth-form button {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-form button:hover {
+      opacity: 0.9;
+    }
+
+    .auth-message {
+      text-align: center;
+      padding: 12px;
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .auth-message.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .auth-message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    /* App Screen */
+    .app-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .app-screen.active {
+      display: flex;
+    }
+
+    .team-board {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Header */
+    .team-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: white;
+    }
+
+    .team-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .team-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .offline-badge {
+      background: #ff9800;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .sign-out-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .sign-out-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    /* Toolbar */
+    .team-toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: white;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 4px;
+      border-right: 1px solid var(--border);
+      padding-right: 8px;
+    }
+
+    .filter-button {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .filter-button:hover {
+      background: var(--bg-hover);
+    }
+
+    .filter-button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .new-task-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: var(--font);
+    }
+
+    .new-task-input::placeholder {
+      color: var(--text-light);
+    }
+
+    .new-task-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .new-task-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Task List */
+    .task-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .task-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .task-item.done {
+      background: var(--bg-done);
+      opacity: 0.7;
+    }
+
+    .task-checkbox {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .task-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+      word-break: break-word;
+      text-decoration: none;
+    }
+
+    .task-item.done .task-title {
+      text-decoration: line-through;
+      color: var(--text-light);
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .task-due {
+      padding: 2px 6px;
+      background: #ffeaa7;
+      border-radius: 3px;
+    }
+
+    .task-assignees {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .assignee-tag {
+      background: #e3f2fd;
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-light);
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      .team-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-group {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 8px;
+      }
+
+      .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-form">
+      <h1>Taskme Team</h1>
+      <p>Sign in with your email</p>
+      <div id="auth-message"></div>
+      <input type="email" id="email-input" placeholder="your.email@example.com" />
+      <button id="sign-in-btn">Sign in with magic link</button>
+    </div>
+  </div>
+
+  <!-- App Screen -->
+  <div class="app-screen" id="app-screen">
+    <div class="team-board">
+      <!-- Header -->
+      <div class="team-header">
+        <h1 class="team-title">Team</h1>
+        <div class="team-actions">
+          <div id="offline-badge"></div>
+          <div class="user-info" id="user-info"></div>
+          <button class="sign-out-btn" id="sign-out-btn">Sign out</button>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="team-toolbar">
+        <div class="filter-group">
+          <button class="filter-button active" data-scope="all">All</button>
+          <button class="filter-button" data-scope="today">Today</button>
+          <button class="filter-button" data-scope="this-week">This week</button>
+        </div>
+        <div class="filter-group">
+          <button class="filter-button active" data-view="everyone">Everyone</button>
+          <button class="filter-button" data-view="mine">Mine</button>
+        </div>
+        <input type="text" class="new-task-input" id="new-task-input" placeholder="Add task (type @name to assign)">
+        <button class="new-task-btn" id="new-task-btn">Add</button>
+      </div>
+
+      <!-- Task List -->
+      <ul class="task-list" id="task-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const SUPABASE_URL = 'https://svxhyhntphbjikvcnvzg.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN2eGh5aG50cGhiamlrdmNudnpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2MTg2MzYsImV4cCI6MjEwNTE5NDYzNn0.tuYigmUCF22QpNWiePSpK8HG59DLCsTLhYPLH8lDnjg';
+
+    // Initialize Supabase
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // State
+    let currentUser = null;
+    let tasks = [];
+    let people = [];
+    let filterScope = 'all';
+    let filterView = 'everyone';
+
+    // Auth
+    document.getElementById('sign-in-btn').addEventListener('click', async () => {
+      const email = document.getElementById('email-input').value.trim();
+      if (!email) return;
+
+      try {
+        const { error } = await supabase.auth.signInWithOtp({ email });
+        if (error) throw error;
+        showAuthMessage('Check your email for the sign-in link!', 'success');
+      } catch (err) {
+        showAuthMessage(err.message, 'error');
+      }
+    });
+
+    document.getElementById('sign-out-btn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      checkAuth();
+    });
+
+    function showAuthMessage(msg, type) {
+      const el = document.getElementById('auth-message');
+      el.textContent = msg;
+      el.className = `auth-message ${type}`;
+    }
+
+    // Check auth state
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        currentUser = session.user;
+        // Get user's person record
+        const { data } = await supabase
+          .from('people')
+          .select('*')
+          .eq('auth_id', session.user.id)
+          .single();
+
+        if (data) {
+          document.getElementById('auth-screen').style.display = 'none';
+          document.getElementById('app-screen').classList.add('active');
+          document.getElementById('user-info').textContent = data.name_en || data.name;
+          loadApp(data.id);
+        }
+      } else {
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('app-screen').classList.remove('active');
+      }
+    }
+
+    // Load app
+    async function loadApp(userId) {
+      await loadPeople();
+      await loadTasks();
+      setupEventListeners();
+      subscribeToUpdates();
+      updateOfflineLabel();
+    }
+
+    async function loadPeople() {
+      const { data } = await supabase
+        .from('people')
+        .select('*')
+        .eq('active', true);
+      people = data || [];
+    }
+
+    async function loadTasks() {
+      const { data } = await supabase
+        .from('tasks')
+        .select(`
+          id, title, due_at, status, created_by, created_at, updated_at,
+          task_assignees (person_id)
+        `);
+
+      tasks = (data || []).map(t => ({
+        ...t,
+        assignees: t.task_assignees.map(ta =>
+          people.find(p => p.id === ta.person_id)
+        ).filter(Boolean)
+      }));
+
+      renderTasks();
+    }
+
+    function setupEventListeners() {
+      // Filters
+      document.querySelectorAll('[data-scope]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('[data-scope].active').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          filterScope = e.target.dataset.scope;
+          renderTasks();
+        });
+      });
+
+      document.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('[data-view].active').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          filterView = e.target.dataset.view;
+          renderTasks();
+        });
+      });
+
+      // New task
+      const input = document.getElementById('new-task-input');
+      document.getElementById('new-task-btn').addEventListener('click', () => addTask(input.value.trim()));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addTask(input.value.trim());
+      });
+    }
+
+    async function addTask(title) {
+      if (!title) return;
+
+      try {
+        const { data: task } = await supabase
+          .from('tasks')
+          .insert({ title, created_by: currentUser.id, status: 'open' })
+          .select()
+          .single();
+
+        // Parse @mentions
+        const mentions = title.match(/@(\w+)/g);
+        if (mentions) {
+          const assignees = mentions
+            .map(m => {
+              const handle = m.slice(1);
+              return people.find(p => p.handle === handle);
+            })
+            .filter(Boolean)
+            .map(p => ({ task_id: task.id, person_id: p.id }));
+
+          if (assignees.length > 0) {
+            await supabase.from('task_assignees').insert(assignees);
+          }
+        }
+
+        document.getElementById('new-task-input').value = '';
+        await loadTasks();
+      } catch (err) {
+        console.error('Failed to add task:', err);
+      }
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('task-list');
+
+      let filtered = tasks;
+
+      // Scope filter
+      if (filterScope === 'today' || filterScope === 'this-week') {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+
+        filtered = filtered.filter(t => {
+          if (!t.due_at) return false;
+          const dueDate = new Date(t.due_at);
+          return filterScope === 'today'
+            ? dueDate <= today || t.status === 'open'
+            : dueDate <= endOfWeek || t.status === 'open';
+        });
+      }
+
+      // View filter
+      if (filterView === 'mine') {
+        filtered = filtered.filter(t =>
+          t.assignees.some(a => a.auth_id === currentUser.id)
+        );
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state"><p>No tasks.</p></div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(t => `
+        <li class="task-item ${t.status === 'done' ? 'done' : ''}">
+          <input type="checkbox" class="task-checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="tickTask('${t.id}')">
+          <div class="task-content">
+            <p class="task-title">${escapeHtml(t.title)}</p>
+            <div class="task-meta">
+              ${t.assignees.map(a => `<span class="assignee-tag">@${a.handle}</span>`).join('')}
+              ${t.due_at ? `<span class="task-due">${new Date(t.due_at).toLocaleDateString()}</span>` : ''}
+            </div>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    async function tickTask(taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      const newStatus = task.status === 'open' ? 'done' : 'open';
+      await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
+      await loadTasks();
+    }
+
+    function subscribeToUpdates() {
+      supabase
+        .channel('tasks')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+          loadTasks();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'task_assignees' }, () => {
+          loadTasks();
+        })
+        .subscribe();
+    }
+
+    function updateOfflineLabel() {
+      const badge = document.getElementById('offline-badge');
+      const isOnline = navigator.onLine;
+      if (!isOnline) {
+        badge.innerHTML = '<div class="offline-badge">Offline</div>';
+      } else {
+        badge.innerHTML = '';
+      }
+    }
+
+    window.addEventListener('online', updateOfflineLabel);
+    window.addEventListener('offline', updateOfflineLabel);
+
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Sync auth state
+    supabase.auth.onAuthStateChange(() => checkAuth());
+    checkAuth();
+  </script>
+</body>
+</html>
