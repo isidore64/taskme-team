@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Add Taskme to your phone or desktop</title>
+<style>
+  
+  * { box-sizing: border-box; }
+  body { margin: 0; max-width: 980px; margin-inline: auto; font-family: "Segoe UI", "Noto Sans", Arial, sans-serif; color: #1c2521; background: #fff; }
+  .page { padding: 34px 40px 28px; }
+  header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .logo { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(145deg,#34c759,#1f8f3f); display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 30px; box-shadow: 0 4px 10px rgba(31,143,63,.35); }
+  h1 { margin: 0; font-size: 26px; letter-spacing: -.3px; }
+  .sub { margin: 2px 0 0; color: #55625b; font-size: 14px; }
+  .url { display: inline-block; background: #eaf7ee; color: #1a7a38; padding: 1px 8px; border-radius: 6px; font-weight: 600; }
+  section { margin-top: 16px; }
+  h2 { font-size: 15px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  h2 .tag { background: #1c2521; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; letter-spacing: .4px; text-transform: uppercase; }
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .card { border: 1px solid #dde4df; border-radius: 12px; padding: 12px; background: #fafcfb; }
+  .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #34c759; color: #fff; font-size: 12px; font-weight: 700; margin-right: 6px; }
+  .card p { margin: 0 0 9px; font-size: 12.5px; line-height: 1.35; min-height: 50px; }
+  b { font-weight: 700; }
+  /* mock illustrations */
+  .mock { border-radius: 8px; background: #fff; border: 1px solid #cfd8d2; overflow: hidden; font-size: 11px; height: 118px; position: relative; }
+  .bar { height: 24px; background: #eef2ef; border-bottom: 1px solid #d8e0da; display: flex; align-items: center; gap: 6px; padding: 0 8px; }
+  .dots i { display:inline-block; width:7px;height:7px;border-radius:50%;background:#c5cec8;margin-right:3px }
+  .addr { flex: 1; background: #fff; border: 1px solid #d3dbd5; border-radius: 10px; padding: 1px 8px; color: #55625b; font-size: 10px; }
+  .kebab { font-weight: 900; font-size: 14px; padding: 0 4px; border-radius: 5px; }
+  .hl { outline: 2px solid #ff3b30; outline-offset: 1px; border-radius: 5px; background: #fff1f0; }
+  .page-body { padding: 10px; color: #8a978f; }
+  .menu { position: absolute; right: 8px; top: 27px; width: 150px; background: #fff; border: 1px solid #cfd8d2; border-radius: 8px; box-shadow: 0 6px 14px rgba(0,0,0,.14); padding: 3px; }
+  .menu div { padding: 3px 7px; border-radius: 4px; color: #4a5650; white-space: nowrap; }
+  .menu .hl { color: #b3261e; font-weight: 700; }
+  .dialog { margin: 14px auto 0; width: 88%; background: #fff; border: 1px solid #cfd8d2; border-radius: 8px; box-shadow: 0 6px 14px rgba(0,0,0,.14); padding: 8px 10px; }
+  .dialog .t { font-weight: 700; margin-bottom: 5px; }
+  .chk { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+  .chk span { width: 11px; height: 11px; border: 1.5px solid #34c759; background:#34c759; border-radius: 3px; color:#fff; font-size:9px; line-height:9px; text-align:center; }
+  .btns { text-align: right; }
+  .btn { display: inline-block; padding: 2px 10px; border-radius: 5px; background: #34c759; color: #fff; font-weight: 700; }
+  .desk { background: linear-gradient(160deg,#3b5a4a,#1f2f28); height: 100%; display: flex; align-items: center; justify-content: center; }
+  .ico { text-align: center; color: #fff; font-size: 10px; }
+  .ico .g { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(145deg,#34c759,#1f8f3f); margin: 0 auto 3px; display:grid; place-items:center; font-weight:700; font-size:20px; box-shadow: 0 0 0 2px #fff; }
+  .menubar { height: 18px; background: #e9edea; display:flex; gap: 12px; padding: 2px 10px; font-size: 10.5px; color:#333; border-bottom:1px solid #d3dbd5; }
+  .note { margin-top: 16px; padding: 10px 14px; background: #fff8e5; border: 1px solid #f0dca0; border-radius: 10px; font-size: 12px; line-height: 1.45; }
+  footer { margin-top: 12px; color: #7a867f; font-size: 11px; }
+
+  .page { padding: 26px 18px 34px; }
+  .row { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .card p { min-height: 0; }
+  nav.jump { display:flex; gap:8px; margin: 0 0 4px; flex-wrap: wrap; }
+  nav.jump a { text-decoration:none; background:#1c2521; color:#fff; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; }
+  .mock.ph { height: 150px; }
+  .toolbar { position:absolute; left:0; right:0; bottom:0; height:30px; background:#eef2ef; border-top:1px solid #d8e0da; display:flex; justify-content:space-around; align-items:center; font-size:15px; color:#4a5650; }
+  .toolbar .hl { padding: 0 8px; }
+  .sheet { position:absolute; left:8px; right:8px; bottom:6px; background:#fff; border:1px solid #cfd8d2; border-radius:10px; box-shadow:0 -4px 14px rgba(0,0,0,.14); padding:4px; }
+  .sheet div { padding:4px 8px; border-radius:5px; color:#4a5650; display:flex; justify-content:space-between; }
+  .sheet .hl { color:#b3261e; font-weight:700; }
+  .top { display:flex; justify-content:space-between; padding:6px 10px; font-weight:700; }
+  .top .ok { color:#1a7a38; }
+  .hs { background: linear-gradient(160deg,#3b5a4a,#1f2f28); height:100%; display:grid; place-items:center; }
+  @media (prefers-color-scheme: dark) { body { background:#101513; color:#e6ede8; } .card { background:#171d1a; border-color:#2a332e; } .note { background:#2a2614; border-color:#5a4d1c; } .sub, footer { color:#9aa8a0; } .url { background:#16301f; color:#6fdc8c; } }
+</style></head>
+<body><div class="page">
+<header>
+  <img class="logo" src="/apple-touch-icon.png" alt="Taskme">
+  <div>
+    <h1>Add Taskme to your phone or desktop</h1>
+    <p class="sub">One tap to open the team board, without typing the address. Open <span class="url">taskme.64-studio.com</span> in your browser first and sign in.</p>
+  </div>
+</header>
+<nav class="jump"><a href="#phone">Phone</a><a href="#computer">Computer</a></nav>
+
+<section id="phone">
+  <h2><span class="tag">iPhone / iPad</span> Safari</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Open <b>taskme.64-studio.com</b> in Safari and tap the <b>Share</b> button (a square with an arrow pointing up).</p>
+      <div class="mock ph"><div class="page-body">Taskme</div><div class="toolbar"><span>‹</span><span>›</span><span class="hl">⬆︎</span><span>▢</span></div></div></div>
+    <div class="card"><p><span class="n">2</span>Scroll the list and tap <b>Add to Home Screen</b>. <i>(If you don't see Share, tap the <b>⋯</b> button first.)</i></p>
+      <div class="mock ph"><div class="sheet"><div>Copy <span>⧉</span></div><div>Add to Bookmarks <span>▭</span></div><div class="hl">Add to Home Screen <span>＋</span></div><div>Find on Page <span>⌕</span></div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Tap <b>Add</b> at the top right. The Taskme icon appears on your Home Screen.</p>
+      <div class="mock ph"><div class="top"><span>Cancel</span><span>Add to Home Screen</span><span class="ok hl">Add</span></div><div class="dialog" style="margin-top:8px"><div class="t">Taskme</div><div style="color:#8a978f">taskme.64-studio.com</div></div></div></div>
+  </div>
+</section>
+<section>
+  <h2><span class="tag">iPhone / iPad</span> Chrome</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Open <b>taskme.64-studio.com</b> in Chrome and tap the <b>Share</b> icon at the right end of the address bar.</p>
+      <div class="mock ph"><div class="bar"><span class="addr">taskme.64-studio.com</span><span class="kebab hl">⬆︎</span></div><div class="page-body">Taskme</div></div></div>
+    <div class="card"><p><span class="n">2</span>Tap <b>Add to Home Screen</b>.</p>
+      <div class="mock ph"><div class="sheet"><div>Copy Link <span>⧉</span></div><div>Add to Reading List <span>▭</span></div><div class="hl">Add to Home Screen <span>＋</span></div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Tap <b>Add</b>. The icon appears on your Home Screen.</p>
+      <div class="mock ph"><div class="top"><span>Cancel</span><span>Add to Home Screen</span><span class="ok hl">Add</span></div><div class="dialog" style="margin-top:8px"><div class="t">Taskme</div><div style="color:#8a978f">taskme.64-studio.com</div></div></div></div>
+  </div>
+</section>
+<section>
+  <h2><span class="tag">Android</span> Chrome</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Open <b>taskme.64-studio.com</b> in Chrome and tap the <b>three dots ⋮</b> at the top right.</p>
+      <div class="mock ph"><div class="bar"><span class="addr">taskme.64-studio.com</span><span class="kebab hl">⋮</span></div><div class="page-body">Taskme</div></div></div>
+    <div class="card"><p><span class="n">2</span>Tap <b>Add to Home screen</b> <i>(on some phones: <b>Install app</b>)</i>.</p>
+      <div class="mock ph"><div class="bar"><span class="addr">taskme.64-studio.com</span><span class="kebab">⋮</span></div><div class="menu"><div>New tab</div><div>History</div><div class="hl">Add to Home screen</div><div>Share…</div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Tap <b>Add</b> (or <b>Install</b>), then <b>Add</b> again if asked. The icon appears on your Home screen.</p>
+      <div class="mock ph"><div class="dialog" style="margin-top:22px"><div class="t">Add to Home screen</div><div style="color:#8a978f;margin-bottom:6px">Taskme</div><div class="btns"><span class="btn">Add</span></div></div></div></div>
+  </div>
+</section>
+
+<div id="computer" style="margin-top:26px"></div>
+<!-- WINDOWS -->
+<section>
+  <h2><span class="tag">Windows</span> Chrome</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Click the <b>three dots ⋮</b> at the top right of Chrome.</p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab hl">⋮</span></div><div class="page-body">Taskme</div></div></div>
+    <div class="card"><p><span class="n">2</span>Choose <b>Cast, save and share</b> → <b>Create shortcut…</b></p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab">⋮</span></div>
+        <div class="menu"><div>New tab</div><div class="hl">Cast, save and share ›</div><div class="hl">Create shortcut…</div><div>Find and edit</div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Tick <b>Open as window</b>, then click <b>Create</b>. The icon appears on your desktop.</p>
+      <div class="mock"><div class="dialog"><div class="t">Create shortcut?</div><div class="chk"><span>✓</span>Open as window</div><div class="btns"><span class="btn">Create</span></div></div></div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">Windows</span> Edge</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Click the <b>three dots ⋯</b> at the top right of Edge.</p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab hl">⋯</span></div><div class="page-body">Taskme</div></div></div>
+    <div class="card"><p><span class="n">2</span>Choose <b>Apps</b> → <b>Install this site as an app</b>.</p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab">⋯</span></div>
+        <div class="menu"><div>New tab</div><div class="hl">Apps ›</div><div class="hl">Install this site as an app</div><div>Downloads</div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Tick <b>Create Desktop shortcut</b>, then click <b>Install</b>.</p>
+      <div class="mock"><div class="dialog"><div class="t">Install app?</div><div class="chk"><span>✓</span>Create Desktop shortcut</div><div class="btns"><span class="btn">Install</span></div></div></div></div>
+  </div>
+</section>
+
+<!-- MAC -->
+<section>
+  <h2><span class="tag">Mac</span> Chrome</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>Click the <b>three dots ⋮</b> at the top right of Chrome.</p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab hl">⋮</span></div><div class="page-body">Taskme</div></div></div>
+    <div class="card"><p><span class="n">2</span>Choose <b>Cast, save and share</b> → <b>Create shortcut…</b> Tick <b>Open as window</b>, click <b>Create</b>.</p>
+      <div class="mock"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="addr">taskme.64-studio.com</span><span class="kebab">⋮</span></div>
+        <div class="menu"><div>New tab</div><div class="hl">Cast, save and share ›</div><div class="hl">Create shortcut…</div><div>Find and edit</div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Open <b>Finder → Applications → Chrome Apps</b>. Drag <b>Taskme</b> to your Dock or desktop.</p>
+      <div class="mock"><div class="desk"><div class="ico"><div class="g" style="background:url(/apple-touch-icon.png) center/cover"></div>Taskme</div></div></div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">Mac</span> Safari</h2>
+  <div class="row">
+    <div class="card"><p><span class="n">1</span>In the top menu bar, click <b>File</b>.</p>
+      <div class="mock"><div class="menubar"><span> Safari</span><span class="hl">File</span><span>Edit</span><span>View</span></div><div class="page-body">taskme.64-studio.com</div></div></div>
+    <div class="card"><p><span class="n">2</span>Choose <b>Add to Dock…</b></p>
+      <div class="mock"><div class="menubar"><span> Safari</span><span>File</span><span>Edit</span><span>View</span></div>
+        <div class="menu" style="left:34px;right:auto;top:20px"><div>New Window</div><div class="hl">Add to Dock…</div><div>Close Tab</div></div></div></div>
+    <div class="card"><p><span class="n">3</span>Click <b>Add</b>. Taskme now sits in your Dock like any other app.</p>
+      <div class="mock"><div class="dialog"><div class="t">Add to Dock</div><div class="chk">Taskme</div><div class="btns"><span class="btn">Add</span></div></div></div></div>
+  </div>
+</section>
+
+
+<div class="note"><b>Good to know:</b> the first time you open the new icon you may need to sign in once more (an emailed code, same as before). Menu names can look slightly different depending on your phone or browser version.</div>
+<footer>Taskme · Studio 64 · taskme.64-studio.com</footer>
+</div></body></html>
