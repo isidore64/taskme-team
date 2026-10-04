@@ -11,8 +11,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Taskme" />
-    <script type="module" crossorigin src="/assets/index-BSe4SD_s.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CdZ1Ky-n.css">
+    <script type="module" crossorigin src="/assets/index-DUaRJLyl.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D0J0r5wy.css">
   </head>
   <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
     <div id="drawer" class="drawer glass">
@@ -20,34 +20,22 @@
       <div id="tab" class="tab" role="button" aria-label="Open or close Taskme">
         <nav class="tabs" role="tablist">
           <button data-view="tasks" role="tab" aria-label="Tasks">
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2.5" width="4" height="4" rx="1.2" /><path d="M3 4.6l.8.8 1.4-1.6M8.5 4.5H14" />
-              <rect x="2" y="9.5" width="4" height="4" rx="1.2" /><path d="M8.5 11.5H14" />
-            </svg>
+            <i data-icon="board" data-size="15"></i>
           </button>
           <button data-view="notes" role="tab" aria-label="Notes">
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 2h6l3 3v9h-9z" /><path d="M9.5 2v3h3M5.5 8h5M5.5 10.5h5M5.5 13h3" />
-            </svg>
+            <i data-icon="notes" data-size="15"></i>
           </button>
           <button data-view="team" role="tab" aria-label="Team">
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="5.5" cy="5" r="2" /><circle cx="11" cy="6.5" r="1.6" />
-              <path d="M2 13c.3-2.2 1.7-3.3 3.5-3.3S8.7 10.8 9 13" /><path d="M9.6 10.1c1.5.1 2.5 1.1 2.7 2.6" />
-            </svg>
+            <i data-icon="people" data-size="15"></i>
             <span id="team-badge" class="notif-dot" hidden></span>
           </button>
           <button data-view="updates" role="tab" aria-label="Updates" hidden>
-            <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5V7.3a4 4 0 0 1 8 0v4.2l1.2 1.3H2.8z"/><path d="M6.6 14a1.5 1.5 0 0 0 2.8 0"/></svg>
+            <i data-icon="bell" data-size="15"></i>
             <span id="upd-badge" class="notif-dot" hidden></span>
           </button>
           <button id="full-btn" class="full-btn" aria-pressed="false" aria-label="Full height">
-            <svg class="i-grow" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 1.75h9M3.5 14.25h9M8 4v8M5.75 6.25 8 4l2.25 2.25M5.75 9.75 8 12l2.25-2.25" />
-            </svg>
-            <svg class="i-shrink" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3.5 8h9M8 1.5v4M8 14.5v-4M5.75 3.25 8 5.5l2.25-2.25M5.75 12.75 8 10.5l2.25 2.25" />
-            </svg>
+            <i data-icon="grow" data-size="15" data-class="i-grow"></i>
+            <i data-icon="shrink" data-size="15" data-class="i-shrink"></i>
           </button>
         </nav>
         <span id="tab-dot" class="notif-dot tab-dot" hidden></span><span class="grip"></span>
@@ -64,11 +52,8 @@
         <header class="head">
           <h1>Taskme <span id="today" class="today"></span></h1>
           <button id="gear" class="icon-btn" aria-label="Settings">
-            <svg class="g-x" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" /></svg>
-            <svg class="g-cog" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-              <path d="M10.08 4.85 L10.42 2.53 L13.58 2.53 L13.92 4.85 L15.70 5.59 L17.57 4.18 L19.82 6.43 L18.41 8.30 L19.15 10.08 L21.47 10.42 L21.47 13.58 L19.15 13.92 L18.41 15.70 L19.82 17.57 L17.57 19.82 L15.70 18.41 L13.92 19.15 L13.58 21.47 L10.42 21.47 L10.08 19.15 L8.30 18.41 L6.43 19.82 L4.18 17.57 L5.59 15.70 L4.85 13.92 L2.53 13.58 L2.53 10.42 L4.85 10.08 L5.59 8.30 L4.18 6.43 L6.43 4.18 L8.30 5.59Z" />
-              <circle cx="12" cy="12" r="3.3" />
-            </svg>
+            <i data-icon="close" data-size="17" data-class="g-x"></i>
+            <i data-icon="cog" data-size="17" data-class="g-cog"></i>
           </button>
         </header>
 
@@ -79,7 +64,7 @@
           <div id="note-editor" class="editor">
             <div class="ed-bar">
               <button id="note-back" class="back">
-                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5" /></svg>
+                <i data-icon="back" data-size="12"></i>
                 Notes
               </button>
               <span id="note-stamp" class="stamp"></span>
@@ -109,20 +94,20 @@
           <div id="team-app" class="team-app" hidden>
             <div class="team-subnav">
               <span class="seg sm" id="team-nav-seg" role="tablist">
-                <button class="on" data-tv="board" aria-label="Board"><svg class="ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="4" height="4" rx="1.2" /><path d="M3 4.6l.8.8 1.4-1.6M8.5 4.5H14" /><rect x="2" y="9.5" width="4" height="4" rx="1.2" /><path d="M8.5 11.5H14" /></svg><span class="lbl">Board</span></button>
-                <button data-tv="notes" aria-label="Notes"><svg class="ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 2h6l3 3v9h-9z" /><path d="M9.5 2v3h3M5.5 8h5M5.5 10.5h5M5.5 13h3" /></svg><span class="lbl">Notes</span></button>
-                <button data-tv="calendar" aria-label="Calendar"><svg class="ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="11" height="10" rx="2" /><path d="M2.5 6.6h11M5.5 2v3M10.5 2v3" /></svg><span class="lbl">Calendar</span></button>
-                <button data-tv="timeoff" aria-label="Time off"><svg class="ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2.5" /><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M12.4 3.6l-1.2 1.2M4.8 11.2l-1.2 1.2" /></svg><span class="lbl">Time off</span><span id="timeoff-badge" class="notif-dot" hidden></span></button>
-                <button data-tv="people" id="team-people-btn" aria-label="People" hidden><svg class="ic" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2" /><circle cx="11" cy="6.5" r="1.6" /><path d="M2 13c.3-2.2 1.7-3.3 3.5-3.3S8.7 10.8 9 13" /><path d="M9.6 10.1c1.5.1 2.5 1.1 2.7 2.6" /></svg><span class="lbl">People</span></button>
+                <button class="on" data-tv="board" aria-label="Board"><i data-icon="board" data-size="14" data-class="ic"></i><span class="lbl">Board</span></button>
+                <button data-tv="notes" aria-label="Notes"><i data-icon="notes" data-size="14" data-class="ic"></i><span class="lbl">Notes</span></button>
+                <button data-tv="calendar" aria-label="Calendar"><i data-icon="calendar" data-size="14" data-class="ic"></i><span class="lbl">Calendar</span></button>
+                <button data-tv="timeoff" aria-label="Time off"><i data-icon="sun" data-size="14" data-class="ic"></i><span class="lbl">Time off</span><span id="timeoff-badge" class="notif-dot" hidden></span></button>
+                <button data-tv="people" id="team-people-btn" aria-label="People" hidden><i data-icon="people" data-size="14" data-class="ic"></i><span class="lbl">People</span></button>
               </span>
-              <button id="team-filter-btn" class="icon-btn sm filter-btn" aria-label="Filter tasks" aria-haspopup="true" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3.5h12L9.6 8.6v4.2l-3.2-1.6V8.6z" /></svg><i class="fdot" hidden></i></button>
+              <button id="team-filter-btn" class="icon-btn sm filter-btn" aria-label="Filter tasks" aria-haspopup="true" hidden><i data-icon="filter" data-size="14"></i><i class="fdot" hidden></i></button>
             </div>
             <div id="team-content" class="team-content" data-tv="board"></div>
             <div id="team-foot" class="foot team-foot">
               <div class="mention-pop" id="mention-pop" hidden></div>
               <input type="text" id="team-new-task" class="field" placeholder="Add a task… (@ to assign)" autocomplete="off" spellcheck="false" />
               <button id="team-send" class="send" aria-label="Add" disabled>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+                <i data-icon="check" data-size="14"></i>
               </button>
             </div>
           </div>
@@ -247,7 +232,7 @@
           <input id="new-task" class="field" placeholder="Add a task…" autocomplete="off" spellcheck="false" disabled />
           <input id="new-note" class="field" placeholder="Add a note…" autocomplete="off" spellcheck="false" />
           <button id="send" class="send" aria-label="Add" disabled>
-            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>
+            <i data-icon="check" data-size="14"></i>
           </button>
         </footer>
       </section>
