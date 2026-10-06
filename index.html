@@ -7,12 +7,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#141a17" />
+    <meta name="theme-color" content="#141a17" /> <!-- design-ok: a meta tag cannot read CSS variables; design_check compares it with tokens.json -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Taskme" />
-    <script type="module" crossorigin src="/assets/index-DUaRJLyl.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D0J0r5wy.css">
+    <script type="module" crossorigin src="/assets/index-BAJzcYhv.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CepE0BIR.css">
   </head>
   <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
     <div id="drawer" class="drawer glass">
@@ -20,25 +20,27 @@
       <div id="tab" class="tab" role="button" aria-label="Open or close Taskme">
         <nav class="tabs" role="tablist">
           <button data-view="tasks" role="tab" aria-label="Tasks">
-            <i data-icon="board" data-size="15"></i>
+            <i data-icon="board" data-size="16"></i>
           </button>
           <button data-view="notes" role="tab" aria-label="Notes">
-            <i data-icon="notes" data-size="15"></i>
+            <i data-icon="notes" data-size="16"></i>
           </button>
           <button data-view="team" role="tab" aria-label="Team">
-            <i data-icon="people" data-size="15"></i>
+            <i data-icon="people" data-size="16"></i>
             <span id="team-badge" class="notif-dot" hidden></span>
           </button>
           <button data-view="updates" role="tab" aria-label="Updates" hidden>
-            <i data-icon="bell" data-size="15"></i>
+            <i data-icon="bell" data-size="16"></i>
             <span id="upd-badge" class="notif-dot" hidden></span>
           </button>
           <button id="full-btn" class="full-btn" aria-pressed="false" aria-label="Full height">
-            <i data-icon="grow" data-size="15" data-class="i-grow"></i>
-            <i data-icon="shrink" data-size="15" data-class="i-shrink"></i>
+            <i data-icon="grow" data-size="16" data-class="i-grow"></i>
+            <i data-icon="shrink" data-size="16" data-class="i-shrink"></i>
           </button>
         </nav>
         <span id="tab-dot" class="notif-dot tab-dot" hidden></span><span class="grip"></span>
+        <!-- Glass handle (MASTER §3.9): a chevron into the screen and a status glow on the edge side. Other skins keep the grip. -->
+        <i data-icon="back" data-size="14" data-class="hchev hchev-r"></i><i data-icon="forward" data-size="14" data-class="hchev hchev-l"></i><span class="tab-stripe" aria-hidden="true"></span>
       </div>
 
       <section id="panel" class="panel">
@@ -52,8 +54,8 @@
         <header class="head">
           <h1>Taskme <span id="today" class="today"></span></h1>
           <button id="gear" class="icon-btn" aria-label="Settings">
-            <i data-icon="close" data-size="17" data-class="g-x"></i>
-            <i data-icon="cog" data-size="17" data-class="g-cog"></i>
+            <i data-icon="close" data-size="16" data-class="g-x"></i>
+            <i data-icon="cog" data-size="16" data-class="g-cog"></i>
           </button>
         </header>
 
@@ -64,12 +66,13 @@
           <div id="note-editor" class="editor">
             <div class="ed-bar">
               <button id="note-back" class="back">
-                <i data-icon="back" data-size="12"></i>
+                <i data-icon="back" data-size="14"></i>
                 Notes
               </button>
-              <span id="note-stamp" class="stamp"></span>
+              <span class="tn-tools"><button id="note-del" class="icon-btn sm danger" aria-label="Delete note"><i data-icon="trash" data-size="14"></i></button></span>
             </div>
             <textarea id="note-text" class="note-text" spellcheck="false" placeholder="Write something…"></textarea>
+            <span id="note-stamp" class="stamp"></span>
           </div>
         </div>
 
@@ -95,7 +98,7 @@
             <div class="team-subnav">
               <span class="seg sm" id="team-nav-seg" role="tablist">
                 <button class="on" data-tv="board" aria-label="Board"><i data-icon="board" data-size="14" data-class="ic"></i><span class="lbl">Board</span></button>
-                <button data-tv="notes" aria-label="Notes"><i data-icon="notes" data-size="14" data-class="ic"></i><span class="lbl">Notes</span></button>
+                <button data-tv="notes" aria-label="Notes"><i data-icon="notes_shared" data-size="14" data-class="ic"></i><span class="lbl">Notes</span></button>
                 <button data-tv="calendar" aria-label="Calendar"><i data-icon="calendar" data-size="14" data-class="ic"></i><span class="lbl">Calendar</span></button>
                 <button data-tv="timeoff" aria-label="Time off"><i data-icon="sun" data-size="14" data-class="ic"></i><span class="lbl">Time off</span><span id="timeoff-badge" class="notif-dot" hidden></span></button>
                 <button data-tv="people" id="team-people-btn" aria-label="People" hidden><i data-icon="people" data-size="14" data-class="ic"></i><span class="lbl">People</span></button>
@@ -105,7 +108,7 @@
             <div id="team-content" class="team-content" data-tv="board"></div>
             <div id="team-foot" class="foot team-foot">
               <div class="mention-pop" id="mention-pop" hidden></div>
-              <input type="text" id="team-new-task" class="field" placeholder="Add a task… (@ to assign)" autocomplete="off" spellcheck="false" />
+              <input type="text" id="team-new-task" class="field" placeholder="Add a task…" autocomplete="off" spellcheck="false" />
               <button id="team-send" class="send" aria-label="Add" disabled>
                 <i data-icon="check" data-size="14"></i>
               </button>
@@ -121,17 +124,17 @@
               <span class="acct-txt"><b id="acct-name"></b><span id="acct-mail"></span></span>
               <span id="acct-role" class="who"></span>
             </div>
-            <button id="acct-signout" class="btn-ghost">Sign out</button>
+            <button id="acct-signout" class="btn-text sm quiet">Sign out</button>
           </div>
           <div class="row skin-row">
             <span class="label">Skin</span>
             <div id="skin-grid" class="skins" role="radiogroup" aria-label="Skin">
-              <button data-skin-id="glass" role="radio" aria-checked="false"><i class="sw sw-glass"></i><span>Glass</span></button>
-              <button data-skin-id="win95" role="radio" aria-checked="false"><i class="sw sw-win95"></i><span>Win 95</span></button>
-              <button data-skin-id="xp" role="radio" aria-checked="false"><i class="sw sw-xp"></i><span>XP</span></button>
-              <button data-skin-id="cyber" role="radio" aria-checked="false"><i class="sw sw-cyber"></i><span>Cyber</span></button>
-              <button data-skin-id="matrix" role="radio" aria-checked="false"><i class="sw sw-matrix"></i><span>Matrix</span></button>
-              <button data-skin-id="medieval" role="radio" aria-checked="false"><i class="sw sw-medieval"></i><span>Medieval</span></button>
+              <button data-skin-id="glass" role="radio" aria-checked="false"><i class="sw sw-glass"></i><span class="skin-name">Glass</span></button>
+              <button data-skin-id="win95" role="radio" aria-checked="false"><i class="sw sw-win95"></i><span class="skin-name">Win 95</span></button>
+              <button data-skin-id="xp" role="radio" aria-checked="false"><i class="sw sw-xp"></i><span class="skin-name">XP</span></button>
+              <button data-skin-id="cyber" role="radio" aria-checked="false"><i class="sw sw-cyber"></i><span class="skin-name">Cyber</span></button>
+              <button data-skin-id="matrix" role="radio" aria-checked="false"><i class="sw sw-matrix"></i><span class="skin-name">Matrix</span></button>
+              <button data-skin-id="medieval" role="radio" aria-checked="false"><i class="sw sw-medieval"></i><span class="skin-name">Medieval</span></button>
             </div>
           </div>
           <div class="row">
@@ -169,13 +172,14 @@
             <span id="frost-val" class="val"></span>
           </div>
           <p id="blur-note" class="hint glass-only" hidden>Blur isn't available on this version of Windows.</p>
-          <button id="quit" class="btn-ghost">Quit Taskme</button>
+          <button id="quit" class="btn-text sm quiet">Quit Taskme</button>
           <p id="app-version" class="hint"></p>
         </div>
 
         <div id="toast" class="toast" role="status" hidden>
           <span id="toast-text"></span>
           <button id="undo">Undo</button>
+          <i class="toast-line" aria-hidden="true"></i>
         </div>
 
         <!-- Update ready (same look as the undo toast; see src/updater.ts) -->
@@ -201,18 +205,20 @@
             <span class="pk-task"></span>
           </div>
           <div class="pk-body">
-          <div class="pk-quick">
+          <div class="pk-quick seg" role="group" aria-label="Quick picks">
             <button data-q="today">Today</button>
             <button data-q="tomorrow">Tomorrow</button>
-            <button data-q="week">In a week</button>
+            <button data-q="week"><span class="q-long">In a week</span><span class="q-short">+1 week</span></button>
           </div>
-          <div class="pk-month">
-            <button class="pk-prev" aria-label="Previous month">‹</button>
-            <span class="pk-label"></span>
-            <button class="pk-next" aria-label="Next month">›</button>
+          <div class="mg">
+            <div class="mg-bar pk-month">
+              <button class="mg-nav pk-prev" aria-label="Previous month"><i data-icon="back" data-size="14"></i></button>
+              <span class="mg-label pk-label"></span>
+              <button class="mg-nav pk-next" aria-label="Next month"><i data-icon="forward" data-size="14"></i></button>
+            </div>
+            <div class="mg-dow" aria-hidden="true"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+            <div class="mg-grid pk-days"></div>
           </div>
-          <div class="pk-dow"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
-          <div class="pk-days"></div>
           <div class="pk-time">
             <span class="label">Time</span>
             <input class="pk-h" inputmode="numeric" maxlength="2" aria-label="Hour" />
