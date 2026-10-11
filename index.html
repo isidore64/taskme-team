@@ -11,8 +11,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Taskme" />
-    <script type="module" crossorigin src="/assets/index-C2ALoEnl.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DVEVl3e7.css">
+    <script type="module" crossorigin src="/assets/index-BBPwM4c8.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CopTndko.css">
   </head>
   <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
     <div id="drawer" class="drawer glass">
@@ -125,6 +125,21 @@
               <span id="acct-role" class="who"></span>
             </div>
             <button id="acct-signout" class="btn-text sm quiet">Sign out</button>
+          </div>
+          <div id="notif" class="notif no-team">
+            <div class="row">
+              <span class="label notif-h">Notifications</span>
+              <button id="notif-switch" class="switch" role="switch" aria-checked="true" aria-label="Notifications"><span class="knob"></span></button>
+            </div>
+            <div id="notif-topics" class="notif-topics">
+              <button class="notif-t" data-topic="tasks" data-team role="switch" aria-checked="true"><span>Tasks for me</span><i class="switch sm"><span class="knob"></span></i></button>
+              <button class="notif-t" data-topic="cancelled" data-team role="switch" aria-checked="true"><span>Cancelled tasks</span><i class="switch sm"><span class="knob"></span></i></button>
+              <button class="notif-t" data-topic="reminders" role="switch" aria-checked="true"><span>Deadline reminders</span><i class="switch sm"><span class="knob"></span></i></button>
+              <button class="notif-t" data-topic="timeoff" data-team role="switch" aria-checked="true"><span>Time off</span><i class="switch sm"><span class="knob"></span></i></button>
+              <button class="notif-t" data-topic="away" data-team role="switch" aria-checked="false"><span>Who's away</span><i class="switch sm"><span class="knob"></span></i></button>
+            </div>
+            <p class="notif-note">Pop-ups show while Taskme is running.</p>
+            <p id="notif-blocked" class="hint" hidden></p>
           </div>
           <div class="row skin-row">
             <span class="label">Skin</span>
