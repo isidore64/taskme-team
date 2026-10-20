@@ -10,9 +10,9 @@
     <meta name="theme-color" content="#141a17" /> <!-- design-ok: a meta tag cannot read CSS variables; design_check compares it with tokens.json -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="Taskme" />
-    <script type="module" crossorigin src="/assets/index-D-5oC9FM.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BGVNrbfz.css">
+    <meta name="apple-mobile-web-app-title" content="Taskme" />
+    <script type="module" crossorigin src="/assets/index-D7NNmxda.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-G9PO9-IC.css">
   </head>
   <body data-edge="right" data-blur="on" data-state="closed" data-view="tasks" data-skin="glass">
     <div id="drawer" class="drawer glass">
@@ -141,6 +141,14 @@
             <p class="notif-note">Pop-ups show while Taskme is running.</p>
             <p id="notif-blocked" class="hint" hidden></p>
           </div>
+          <div class="row">
+            <span class="label">Archive done</span>
+            <div id="archive-seg" class="seg" role="group" aria-label="Move done tasks to the Archive after" data-setting="archive">
+              <button data-v="1">24 h</button>
+              <button data-v="3">3 days</button>
+              <button data-v="7">7 days</button>
+            </div>
+          </div>
           <div class="row skin-row">
             <span class="label">Skin</span>
             <div id="skin-grid" class="skins" role="radiogroup" aria-label="Skin">
@@ -258,6 +266,6 @@
           </button>
         </footer>
       </section>
-    </div>
+    </div>
   </body>
 </html>
